@@ -1,0 +1,178 @@
+/* 天津版新增：区级设施卡 + 资源优先级实验室 */
+
+.district-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0 15px;
+  border-top: 1px solid var(--line);
+  transition: background 0.15s ease;
+}
+
+.district-card:hover {
+  background: rgba(251, 248, 240, 0.55);
+}
+
+.district-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.district-head h4 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.district-head span {
+  color: var(--rust);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.district-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 11px 0 10px;
+}
+
+.district-metric {
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.district-metric strong {
+  display: block;
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.district-metric span {
+  display: block;
+  margin-top: 1px;
+  color: var(--muted);
+  font-size: 9.5px;
+}
+
+.district-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: auto;
+}
+
+.district-links .map-link {
+  margin-top: 0;
+}
+
+/* ---------- 实验室 ---------- */
+.lab {
+  background: rgba(251, 248, 240, 0.45);
+}
+
+.lab-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+  gap: 36px;
+  align-items: start;
+}
+
+.lab-controls {
+  padding-top: 14px;
+  border-top: 2px solid var(--ink);
+}
+
+.lab-label {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+}
+
+.lab-presets {
+  margin-bottom: 12px;
+}
+
+.slider-row {
+  padding: 13px 0 11px;
+  border-bottom: 1px dotted var(--line);
+}
+
+.slider-row label {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 12.5px;
+}
+
+.slider-row label span {
+  color: var(--rust);
+  font-variant-numeric: tabular-nums;
+}
+
+.slider-row input[type="range"] {
+  width: 100%;
+  margin: 9px 0 0;
+  accent-color: var(--teal);
+  cursor: pointer;
+}
+
+.lab-hint {
+  margin: 12px 0 0;
+  color: #928875;
+  font-size: 10.5px;
+  line-height: 1.7;
+}
+
+.lab-chart-wrap {
+  min-width: 0;
+}
+
+.lab-chart {
+  width: 100%;
+  height: 430px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.lab-insight {
+  margin: 10px 0 0;
+  padding: 9px 12px;
+  border-left: 3px solid var(--rust);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .lab-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .lab-chart {
+    height: 380px;
+  }
+}
+
+@media (max-width: 700px) {
+  .district-metrics {
+    gap: 6px;
+  }
+
+  .district-metric strong {
+    font-size: 16px;
+  }
+
+  .lab-chart {
+    height: 340px;
+  }
+}
