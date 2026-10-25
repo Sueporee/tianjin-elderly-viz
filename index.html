@@ -8,7 +8,7 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <title>海河养老资源 · 天津 16 区</title>
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=15">
+  <link rel="stylesheet" href="css/style.css?v=16">
   <link rel="stylesheet" href="css/lab.css?v=11">
 </head>
 <body>
@@ -154,6 +154,10 @@
 
         <div class="map-shell">
           <div class="map-toolbar">
+            <div class="map-search-wrap">
+              <input id="mapSearch" type="search" autocomplete="off" placeholder="搜索区 / 街道 / 点位，定位到地图" aria-label="搜索地点">
+              <div class="map-search-results" id="mapSearchResults"></div>
+            </div>
             <div class="map-tools">
               <button class="map-btn" id="locateBtn" type="button">定位我</button>
               <span class="locate-status" id="locateStatus">未定位，按区浏览</span>
@@ -412,6 +416,6 @@
   <script src="data/tianjin_geo.js?v=11"></script>
   <script src="vendor/echarts.min.js"></script>
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="js/app.js?v=19"></script>
+  <script src="js/app.js?v=20"></script>
 </body>
 </html>
