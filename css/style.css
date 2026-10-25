@@ -117,15 +117,40 @@ svg {
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  background: var(--blue);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1;
-  box-shadow: 0 5px 12px rgba(23, 93, 141, 0.22);
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+}
+
+.brand-mark svg {
+  width: 38px;
+  height: 38px;
+  overflow: visible;
+}
+
+.brand-mark .river {
+  fill: none;
+  stroke-linecap: round;
+  stroke-width: 1.8;
+}
+
+.brand-mark .river-a {
+  stroke: var(--blue);
+}
+
+.brand-mark .river-b {
+  stroke: #7fa8c4;
+  stroke-width: 1.4;
+}
+
+.brand-mark .river-dot {
+  fill: var(--red);
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .brand-text {
@@ -133,9 +158,24 @@ svg {
   color: var(--ink);
   font-size: 15.5px;
   font-weight: 750;
-  letter-spacing: -0.01em;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.brand-text b {
+  color: var(--blue);
+  font-weight: 800;
+}
+
+.brand-sub {
+  margin-top: 2px;
+  color: var(--muted-2);
+  font-size: 7.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
 }
 
 .nav {
@@ -1116,6 +1156,10 @@ svg {
 
   .brand-text {
     font-size: 14px;
+  }
+
+  .brand-sub {
+    display: none;
   }
 
   .nav {
