@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#f2eee4">
-  <meta name="description" content="天津 16 区老年人口、老人家食堂、日间照料中心与卫生床位数据可视化。">
+  <meta name="theme-color" content="#0e3f63">
+  <meta name="description" content="天津 16 区养老资源体检：看老年人口、助餐点、日间照料中心与卫生床位，支持补点优先级实验。">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <title>津门社区养老数据观察 · 天津 16 区</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/lab.css">
+  <title>海河养老资源体检 · 天津 16 区</title>
+  <link rel="stylesheet" href="css/style.css?v=2">
+  <link rel="stylesheet" href="css/lab.css?v=2">
 </head>
 <body>
   <div class="masthead">
     <div class="container masthead-inner">
-      <span>津门社区养老数据观察</span>
+      <span>海河养老资源体检</span>
       <span>天津 · 2026.10</span>
       <span>公开数据整理 / 课程项目</span>
     </div>
@@ -23,14 +23,14 @@
     <div class="container header-inner">
       <a class="brand" href="#home">
         <span class="brand-mark">津</span>
-        <span class="brand-text">津门社区养老数据观察</span>
+        <span class="brand-text">海河养老资源体检</span>
       </a>
       <nav class="nav" id="nav">
         <a href="#home" class="nav-link active">首页</a>
-        <a href="#visual" class="nav-link">数据图表</a>
-        <a href="#facilities" class="nav-link">设施账单</a>
-        <a href="#lab" class="nav-link">优先级实验室</a>
-        <a href="#insights" class="nav-link">分析结论</a>
+        <a href="#visual" class="nav-link">资源体检</a>
+        <a href="#facilities" class="nav-link">服务导航</a>
+        <a href="#lab" class="nav-link">补点实验室</a>
+        <a href="#insights" class="nav-link">结论</a>
       </nav>
       <button class="nav-toggle" id="navToggle" aria-label="展开菜单" aria-expanded="false">
         <span></span><span></span><span></span>
@@ -40,23 +40,31 @@
 
   <main>
     <section class="hero" id="home">
+      <div class="hero-river" aria-hidden="true">
+        <svg viewBox="0 0 1440 620" preserveAspectRatio="none">
+          <path d="M-60 430 C 170 290, 330 500, 570 360 S 900 170, 1130 300 S 1320 450, 1500 330" fill="none" stroke="#175d8d" stroke-opacity=".12" stroke-width="2"/>
+          <path d="M-60 475 C 190 340, 360 540, 610 400 S 950 230, 1180 350 S 1350 490, 1500 380" fill="none" stroke="#b54633" stroke-opacity=".08" stroke-width="2"/>
+          <circle cx="1170" cy="170" r="120" fill="none" stroke="#175d8d" stroke-opacity=".07" stroke-width="1.5"/>
+        </svg>
+      </div>
+
       <div class="container hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow">天津 · 16 区 · 2020 人口 / 2025 设施</p>
+          <p class="eyebrow">天津 · 16 区 · A 决策视角 / B 居民视角</p>
           <h1>海河两岸<br><span>养老资源够不够近</span></h1>
           <p class="lead">
-            把天津 16 个区的老年人口、老人家食堂、日间照料中心和卫生床位放在同一张图上。
-            先看清哪里老人多、哪里设施少，再决定资源往哪儿补。
+            A 面看资源错配：哪个区老人多、哪类设施少，补点先给谁；
+            B 面查区级服务：每个区有多少助餐点、日间照料和卫生床位，再进民政局名单看具体点位。
           </p>
           <div class="hero-actions">
-            <a class="text-link" href="#visual">查看数据图表 <span aria-hidden="true">→</span></a>
-            <a class="text-link" href="#lab">调整资源优先级 <span aria-hidden="true">→</span></a>
+            <a class="btn btn-primary" href="#visual">A · 看资源体检 <span aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost" href="#facilities">B · 查区级服务 <span aria-hidden="true">→</span></a>
           </div>
-          <p class="hero-note">人口为 2020 年七普，设施为 2024—2025 年公开名单；用于课程展示，不构成服务承诺。</p>
+          <p class="hero-note">A 用于补点讨论，B 只到区级汇总；具体服务以民政局官方名单为准，不构成服务承诺。</p>
         </div>
 
         <aside class="brief">
-          <p class="brief-label">本期摘要 / 03</p>
+          <p class="brief-label">海河速览 / 03</p>
           <div class="brief-item">
             <span class="brief-num">01</span>
             <div>
@@ -105,10 +113,10 @@
       <div class="container">
         <div class="section-head">
           <div class="section-title">
-            <p class="section-index">01 / 数据图表</p>
+            <p class="section-index">01 / A · 资源体检</p>
             <h2>先看总量，再看错配</h2>
           </div>
-          <p class="section-desc">点击标签切换图表，鼠标悬浮查看具体数值。人口为 2020 年七普，设施为 2025 年名单。</p>
+          <p class="section-desc">点击标签切换图表，悬浮看具体数值。人口为 2020 七普，设施为 2025 年公开名单。</p>
         </div>
 
         <div class="tabs" role="tablist" aria-label="图表切换">
@@ -136,10 +144,10 @@
       <div class="container">
         <div class="section-head">
           <div class="section-title">
-            <p class="section-index">02 / 设施账单</p>
-            <h2>16 个区，三笔账</h2>
+            <p class="section-index">02 / B · 区级服务导航</p>
+            <h2>先看区，再看名单</h2>
           </div>
-          <p class="section-desc">助餐点、日间照料中心、卫生床位分别按区汇总。点击卡片下方链接可查看市民政局官方名单。</p>
+          <p class="section-desc">居民视角的区级入口：先看每个区有多少助餐、日照和床位，再点进民政局官方名单查具体点位。</p>
         </div>
 
         <div class="filter-card">
@@ -151,7 +159,7 @@
           </div>
           <div class="result-bar">
             <span id="resultCount">正在加载…</span>
-            <span class="result-hint">区级汇总 · 名单口径</span>
+            <span class="result-hint">区级汇总 · 点进官方名单</span>
           </div>
         </div>
 
@@ -163,10 +171,10 @@
       <div class="container">
         <div class="section-head">
           <div class="section-title">
-            <p class="section-index">03 / 资源优先级实验室</p>
+            <p class="section-index">03 / A · 补点实验室</p>
             <h2>如果只能先补一类，你会怎么选？</h2>
           </div>
-          <p class="section-desc">拖动滑块调整“助餐点、日间照料、卫生床位”的权重，16 区排名会实时变化。没有标准答案，只有优先级。</p>
+          <p class="section-desc">拖动滑块调整“助餐点、日间照料、卫生床位”的权重，16 区排名实时变化。没有标准答案，只有优先级。</p>
         </div>
 
         <div class="lab-grid">
@@ -206,7 +214,7 @@
       <div class="container">
         <div class="section-head">
           <div class="section-title">
-            <p class="section-index">04 / 分析结论</p>
+            <p class="section-index">04 / 结论</p>
             <h2>从数据里读出的四件事</h2>
           </div>
           <p class="section-desc">人口是 2020 年的，设施是 2025 年的；这是一次“结构对照”，不是实时服务清单。</p>
@@ -264,13 +272,13 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <p>社区老年人常用便民服务大数据可视化分析 · 天津版</p>
+      <p>海河养老资源体检 · 天津 16 区</p>
       <p>数据来源：天津市统计局、天津市民政局</p>
     </div>
   </footer>
 
-  <script src="data/app_data.js"></script>
+  <script src="data/app_data.js?v=2"></script>
   <script src="vendor/echarts.min.js"></script>
-  <script src="js/app.js?v=1"></script>
+  <script src="js/app.js?v=2"></script>
 </body>
 </html>
