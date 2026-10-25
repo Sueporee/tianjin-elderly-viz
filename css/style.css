@@ -2129,3 +2129,140 @@ body.modal-open {
     padding-right: 28px;
   }
 }
+
+/* ---------- 建议卡（深蓝版） ---------- */
+.recommend-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+  gap: 42px;
+  margin-top: 22px;
+  padding: 32px 34px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  background: #0d3554;
+  box-shadow: 0 18px 42px rgba(13, 53, 84, 0.22);
+}
+
+.recommend-card::before {
+  content: "";
+  position: absolute;
+  right: -180px;
+  bottom: -260px;
+  width: 560px;
+  height: 560px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.recommend-card::after {
+  content: "";
+  position: absolute;
+  right: 8%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+}
+
+.recommend-head {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  padding-left: 16px;
+  border-left: 2px solid #7fc4ec;
+}
+
+.recommend-head .section-index {
+  margin-bottom: 8px;
+  color: #8fd0f2;
+  letter-spacing: 0.14em;
+}
+
+.recommend-head h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 26px;
+  font-weight: 760;
+  line-height: 1.28;
+  letter-spacing: -0.025em;
+}
+
+.recommend-head p {
+  max-width: 330px;
+  margin: 10px 0 0;
+  color: #a9c8dc;
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.recommend-list {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: rec;
+}
+
+.recommend-list li {
+  position: relative;
+  padding: 14px 0 14px 42px;
+  border-top: 1px solid rgba(255, 255, 255, 0.13);
+  color: #d7e8f2;
+  font-size: 12px;
+  line-height: 1.75;
+  counter-increment: rec;
+}
+
+.recommend-list li:first-child {
+  border-top: 0;
+}
+
+.recommend-list li::before {
+  content: "0" counter(rec);
+  position: absolute;
+  top: 14px;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(255, 179, 107, 0.55);
+  border-radius: 50%;
+  color: #ffb36b;
+  font-size: 8.5px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.recommend-list strong {
+  color: #fff;
+  font-weight: 750;
+}
+
+@media (max-width: 900px) {
+  .recommend-card {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 26px 22px;
+  }
+
+  .recommend-card::after {
+    display: none;
+  }
+
+  .recommend-head {
+    align-self: start;
+  }
+
+  .recommend-head h3 {
+    font-size: 23px;
+  }
+}
