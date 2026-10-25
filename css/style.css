@@ -1962,3 +1962,139 @@ svg {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- 使用说明浮动窗 ---------- */
+.help-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px 8px 8px;
+  border: 1px solid #c9dce9;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--blue);
+  box-shadow: 0 10px 28px rgba(16, 35, 58, 0.16);
+  font-size: 10.5px;
+  font-weight: 650;
+  backdrop-filter: blur(8px);
+}
+
+.help-fab:hover {
+  border-color: var(--blue);
+  background: #fff;
+}
+
+.help-fab-mark {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.help-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 7vh 16px 24px;
+}
+
+.help-modal.open {
+  display: flex;
+}
+
+.help-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 41, 66, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.help-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(760px, 100%);
+  max-height: 86vh;
+  overflow: auto;
+  padding: 24px 26px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.28);
+}
+
+.help-close {
+  position: absolute;
+  top: 11px;
+  right: 13px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.help-close:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.help-dialog h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 27px;
+  font-weight: 780;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.help-lead {
+  margin: 7px 0 16px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.help-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+@media (max-width: 760px) {
+  .help-fab {
+    right: 14px;
+    bottom: 14px;
+  }
+
+  .help-modal {
+    padding-top: 4vh;
+  }
+
+  .help-dialog {
+    padding: 20px 18px;
+  }
+
+  .help-dialog h2 {
+    font-size: 23px;
+    padding-right: 28px;
+  }
+}
