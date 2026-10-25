@@ -2285,20 +2285,26 @@ body.modal-open {
 }
 
 .map-categories {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 6px;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 7px !important;
   margin-top: 9px;
   padding-top: 9px;
   border-top: 1px solid var(--line);
 }
 
 .map-cat-row {
-  display: flex;
+  display: flex !important;
+  flex: 0 0 100% !important;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
+  width: 100% !important;
+}
+
+.map-cat-row + .map-cat-row {
+  padding-top: 7px;
+  border-top: 1px dashed var(--line);
 }
 
 .map-cat-label {
