@@ -149,7 +149,7 @@
             <h2>一张地图，先看附近</h2>
           </div>
           <div class="section-meta">
-            <p class="section-desc" id="mapDesc">全市 16 区按所选指标着色，中心城区叠加点位；地图下方只留一行分类。</p>
+            <p class="section-desc" id="mapDesc">全市 16 区按所选指标着色，中心城区叠加点位；地图下方分两行：设施类型 / 区域。</p>
             <p class="page-scope" id="mapScope">全市 16 区底色 + 中心城区点位</p>
           </div>
         </div>
@@ -167,8 +167,14 @@
               <div id="tjMap" class="map-canvas" role="img" aria-label="天津养老服务地图"></div>
               <p class="map-note">颜色=区级设施密度；点=中心城区点位；坐标近似，距离仅作参考。</p>
               <div class="map-categories">
-                <span class="map-cat-label">下属分类</span>
-                <div class="chips" id="pointTypeFilters"></div>
+                <div class="map-cat-row">
+                  <span class="map-cat-label">设施类型</span>
+                  <div class="chips" id="pointTypeFilters"></div>
+                </div>
+                <div class="map-cat-row" id="districtFilterRow">
+                  <span class="map-cat-label">区域</span>
+                  <div class="chips" id="pointDistrictFilters"></div>
+                </div>
               </div>
             </div>
 
