@@ -729,6 +729,7 @@
   let markerLayer = null;
   let bubbleLayer = null;
   let highlightLayer = null;
+  let userMarker = null;
 
   function updatePointCopy() {
     const ds = (POINT_SUMMARY.coveredDistricts || []).length;
@@ -1145,14 +1146,23 @@
           const f = districtAt(gcj[0], gcj[1]);
           if (f) {
             const name = f.properties?.name || "";
-            mapState.district = name; mapState.street = null; mapState.focus = centerOf(name);
-            locateStatus.textContent = `已定位 · ${name} · ${wgs[0].toFixed(3)}, ${wgs[1].toFixed(3)}`;
-          } else {
+            mapState.district = name;
+            mapState.street = null;
+            mapState.selected = null;
             mapState.focus = gcj;
-            locateStatus.textContent = `已定位 · ${wgs[0].toFixed(3)}, ${wgs[1].toFixed(3)}（不在天津 16 区范围）`;
+            locateStatus.textContent = `已定位 · ${name} · ${wgs[0].toFixed(4)}, ${wgs[1].toFixed(4)}`;
+          } else {
+            mapState.district = "全部";
+            mapState.focus = gcj;
+            locateStatus.textContent = `已定位 · ${wgs[0].toFixed(4)}, ${wgs[1].toFixed(4)}（不在天津 16 区范围）`;
           }
+          if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
+          const ring = L.circleMarker(gcj, { radius: 18, color: "#1d7ed6", weight: 0, fillColor: "#1d7ed6", fillOpacity: 0.16 }).addTo(map);
+          const dot = L.circleMarker(gcj, { radius: 7, color: "#fff", weight: 2, fillColor: "#1d7ed6", fillOpacity: 1 }).addTo(map);
+          userMarker = L.layerGroup([ring, dot]).addTo(map);
+          dot.bindPopup(`<strong>我的位置</strong><br>${wgs[0].toFixed(5)}, ${wgs[1].toFixed(5)}${f ? `<br>${f.properties.name}` : ""}`).openPopup();
           renderMap();
-          if (mapState.focus) map.setView(mapState.focus, 13);
+          map.setView(gcj, 15);
         },
         () => { locateStatus.textContent = "定位失败，可改用区筛选"; },
         { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
