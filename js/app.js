@@ -67,20 +67,6 @@
   }
 
   const navLinks = [...document.querySelectorAll(".nav-link")];
-  const sectionIds = ["home", "visual", "facilities", "lab", "insights"];
-  const sectionEls = sectionIds.map((id) => document.getElementById(id)).filter(Boolean);
-  function updateNav() {
-    const pos = window.scrollY + 140;
-    let active = "home";
-    sectionEls.forEach((sec) => {
-      if (sec.offsetTop <= pos) active = sec.id;
-    });
-    navLinks.forEach((link) => {
-      link.classList.toggle("active", link.getAttribute("href") === `#${active}`);
-    });
-  }
-  window.addEventListener("scroll", updateNav, { passive: true });
-  updateNav();
 
   /* ---------------- 主图表 ---------------- */
   const chartEl = document.getElementById("mainChart");
@@ -361,6 +347,66 @@
     };
   };
 
+  const gapOption = () => {
+    const ordered = [...DISTRICTS].sort((a, b) => b.gap - a.gap);
+    const display = ordered.slice().reverse();
+    const maxAbs = Math.max(10, ...DISTRICTS.map((d) => Math.abs(d.gap)));
+    const bound = Math.ceil(maxAbs / 10) * 10;
+    return {
+      textStyle: chartText,
+      tooltip: {
+        ...tooltipBase,
+        trigger: "axis",
+        axisPointer: { type: "shadow" },
+        formatter(params) {
+          const d = ordered[ordered.length - 1 - params[0].dataIndex];
+          return `<div style="font-weight:600;margin-bottom:4px">${d.name}</div>`
+            + row("需求指数", d.demand.toFixed(1))
+            + row("供给指数", d.index.toFixed(1))
+            + row("缺口", `${d.gap > 0 ? "+" : ""}${d.gap.toFixed(1)}`, d.gap > 0 ? "#b54633" : "#175d8d")
+            + row("优先补", d.weakest, "#b54633");
+        },
+      },
+      grid: { left: 64, right: 56, top: 16, bottom: 34 },
+      xAxis: {
+        type: "value",
+        min: -bound,
+        max: bound,
+        axisLabel: { color: "#8fa3b3", fontSize: 9 },
+        splitLine: { lineStyle: { color: "#d8e2e9" } },
+      },
+      yAxis: {
+        type: "category",
+        data: display.map((d) => d.name),
+        axisTick: { show: false },
+        axisLine: { lineStyle: { color: "#b8c8d4" } },
+        axisLabel: { color: "#5f7182", fontSize: 9 },
+      },
+      series: [{
+        type: "bar",
+        data: display.map((d) => ({
+          value: d.gap,
+          itemStyle: { color: d.gap >= 0 ? "#b54633" : "#175d8d" },
+        })),
+        barMaxWidth: 12,
+        label: {
+          show: true,
+          position: "right",
+          formatter: (p) => `${p.value > 0 ? "+" : ""}${p.value.toFixed(1)}`,
+          fontSize: 9,
+          color: "#5f7182",
+        },
+        markLine: {
+          silent: true,
+          symbol: "none",
+          lineStyle: { color: "#8fa3b3", type: "solid" },
+          label: { show: false },
+          data: [{ xAxis: 0 }],
+        },
+      }],
+    };
+  };
+
   const views = {
     population: {
       title: "各区老年人口与老龄化率",
@@ -385,10 +431,17 @@
     },
     match: {
       title: "老龄化程度与日间照料供给",
-      sub: "气泡越大，60+ 人口越多；颜色越绿，综合便利指数越高",
+      sub: "气泡越大，60+ 人口越多；颜色越蓝，综合便利指数越高",
       badge: "供需匹配",
       note: "虚线为 16 区均值；老龄化与日照密度相关系数 r = -0.35。",
       option: matchOption,
+    },
+    gap: {
+      title: "需求—供给缺口",
+      sub: "正值=需求高于供给，优先补点；负值=供给相对充足",
+      badge: "A · 补点",
+      note: "需求指数 = 60+ 人口规模（60%）+ 老龄化率（40%）；供给指数为默认权重的综合便利指数。缺口只用于区级排序，不替代街道实地核查。",
+      option: gapOption,
     },
   };
 
@@ -654,8 +707,337 @@
     setText("insightIndexText", `${bestD.name}最高，${worstD.name}最低（${worstD.index.toFixed(1)}）；拖动实验室权重，排名会变化。`);
   }
 
+  /* ---------------- B 附近地图 ---------------- */
+  const POINTS = DATA.points || [];
+  const POINT_SUMMARY = DATA.pointSummary || {};
+  const mapState = { type: "全部", district: "全部", location: null, selected: null };
+  const mapEl = document.getElementById("tjMap");
+  const mapListEl = document.getElementById("mapList");
+  const mapListCount = document.getElementById("mapListCount");
+  const mapListSort = document.getElementById("mapListSort");
+  const mapDistrictCard = document.getElementById("mapDistrictCard");
+  const locateBtn = document.getElementById("locateBtn");
+  const locateStatus = document.getElementById("locateStatus");
+  const typeFilterEl = document.getElementById("pointTypeFilters");
+  let mapChart = null;
+
+  function esc(s) {
+    return String(s || "").replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+  }
+
+  function haversine(a, b) {
+    const R = 6371;
+    const dLat = (b[0] - a[0]) * Math.PI / 180;
+    const dLon = (b[1] - a[1]) * Math.PI / 180;
+    const la1 = a[0] * Math.PI / 180;
+    const la2 = b[0] * Math.PI / 180;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  function pointDistance(p) {
+    return mapState.location ? haversine(mapState.location, [p.lat, p.lon]) : null;
+  }
+
+  function filteredPoints() {
+    return POINTS.filter((p) =>
+      (mapState.type === "全部" || p.type === mapState.type) &&
+      (mapState.district === "全部" || p.district === mapState.district)
+    ).sort((a, b) => {
+      if (mapState.location) return pointDistance(a) - pointDistance(b);
+      return a.district.localeCompare(b.district, "zh") || a.name.localeCompare(b.name, "zh");
+    });
+  }
+
+  function buildMapFilters() {
+    const types = ["全部", "助餐点", "日间照料"];
+    typeFilterEl.innerHTML = types.map((t) =>
+      `<button class="chip ${t === mapState.type ? "active" : ""}" type="button" data-type="${t}">${t}</button>`
+    ).join("");
+    typeFilterEl.querySelectorAll(".chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        mapState.type = btn.dataset.type;
+        buildMapFilters();
+        renderMap();
+      });
+    });
+
+    let districtEl = document.getElementById("pointDistrictFilters");
+    if (!districtEl) {
+      districtEl = document.createElement("div");
+      districtEl.id = "pointDistrictFilters";
+      districtEl.className = "chips";
+      typeFilterEl.insertAdjacentElement("afterend", districtEl);
+    }
+    const ds = ["全部", ...(POINT_SUMMARY.coveredDistricts || [])];
+    districtEl.innerHTML = ds.map((d) =>
+      `<button class="chip ${d === mapState.district ? "active" : ""}" type="button" data-district="${d}">${d}</button>`
+    ).join("");
+    districtEl.querySelectorAll(".chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        mapState.district = btn.dataset.district;
+        buildMapFilters();
+        renderMap();
+      });
+    });
+  }
+
+  function renderMapDistrict() {
+    if (!mapDistrictCard) return;
+    if (mapState.district === "全部") {
+      mapDistrictCard.innerHTML = `
+        <p class="map-card-label">A · 区级背景</p>
+        <h3>先在地图或筛选里选一个区</h3>
+        <p>选中区后，这里会显示老龄化、综合便利指数、供需缺口和优先补的设施类型。</p>`;
+      return;
+    }
+    const d = DISTRICTS.find((x) => x.name === mapState.district);
+    if (!d) return;
+    mapDistrictCard.innerHTML = `
+      <p class="map-card-label">A · 区级背景</p>
+      <div class="map-card-head">
+        <h3>${esc(d.name)}</h3>
+        <span>${d.aging.toFixed(1)}% 老龄化</span>
+      </div>
+      <div class="map-card-metrics">
+        <div><b>${d.index.toFixed(1)}</b><span>综合指数</span></div>
+        <div><b class="${d.gap > 0 ? "is-gap" : ""}">${d.gap > 0 ? "+" : ""}${d.gap.toFixed(1)}</b><span>供需缺口</span></div>
+        <div><b>${esc(d.weakest)}</b><span>优先补</span></div>
+      </div>
+      <a class="map-card-link" href="#/checkup">去 A 看这个区的图表 →</a>`;
+  }
+
+  function renderMapList() {
+    const list = filteredPoints();
+    if (mapListCount) mapListCount.textContent = `共 ${list.length} 个点位`;
+    if (mapListSort) mapListSort.textContent = mapState.location ? "按离我距离排序" : "按区 / 名称";
+    if (!mapListEl) return;
+    if (!list.length) {
+      mapListEl.innerHTML = `<div class="map-empty">这个筛选下没有点位。</div>`;
+      return;
+    }
+    mapListEl.innerHTML = list.slice(0, 50).map((p) => {
+      const dist = pointDistance(p);
+      const geo = p.geoLevel === "street" ? "街道级近似" : "区级近似";
+      return `
+        <article class="map-point" data-name="${esc(p.name)}">
+          <div class="map-point-top">
+            <span class="map-point-type ${p.type === "助餐点" ? "is-meal" : "is-day"}">${p.type}</span>
+            <span class="map-point-geo">${geo}</span>
+            ${dist !== null ? `<span class="map-point-dist">${dist.toFixed(1)} km</span>` : ""}
+          </div>
+          <h4>${esc(p.name)}</h4>
+          <p>${esc(p.district)} · ${esc(p.address)}</p>
+          ${p.phone ? `<a class="map-point-phone" href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}
+        </article>`;
+    }).join("") + (list.length > 50 ? `<p class="map-list-more">还有 ${list.length - 50} 个点位，缩小筛选范围可查看更多。</p>` : "");
+  }
+
+  function renderMap() {
+    const scope = document.getElementById("mapScope");
+    if (scope) {
+      const ds = (POINT_SUMMARY.coveredDistricts || []).length;
+      scope.textContent = `试点范围：${ds} 区 · ${POINT_SUMMARY.total || 0} 个点位（助餐 ${POINT_SUMMARY.meal || 0} / 日照 ${POINT_SUMMARY.daycare || 0}；街道级 ${POINT_SUMMARY.street || 0} / 区级 ${POINT_SUMMARY.district || 0}）`;
+    }
+    buildMapFilters();
+    renderMapDistrict();
+    renderMapList();
+    if (!mapChart) return;
+    const list = filteredPoints();
+    const hasStreet = (POINT_SUMMARY.street || 0) > 0;
+    let data = [];
+    if (hasStreet) {
+      data = list.map((p) => ({
+        name: p.name,
+        value: [p.lon, p.lat],
+        point: p,
+        itemStyle: { color: p.type === "助餐点" ? "#b54633" : "#175d8d" },
+      }));
+    } else {
+      const centers = {};
+      (window.TJ_GEO?.features || []).forEach((f) => {
+        const p = f.properties || {};
+        const c = p.center || p.centroid;
+        if (c) centers[p.name] = c;
+      });
+      const groups = {};
+      list.forEach((p) => {
+        if (!groups[p.district]) groups[p.district] = { district: p.district, count: 0 };
+        groups[p.district].count += 1;
+      });
+      data = Object.values(groups).map((g) => {
+        const c = centers[g.district] || [117.2, 39.1];
+        return {
+          name: g.district,
+          value: [c[0], c[1], g.count],
+          group: g,
+          label: { show: true, formatter: `${g.count}`, color: "#102338", fontSize: 9, position: "inside" },
+          itemStyle: { color: "#175d8d", opacity: 0.85, borderColor: "#ffffff", borderWidth: 1.5 },
+        };
+      });
+    }
+    const note = document.querySelector(".map-note");
+    if (note && !hasStreet) {
+      note.textContent = "坐标服务暂不可用：地图按区聚合；下方列表仍可查看点位名称、地址和电话（区级近似）。";
+    }
+    mapChart.setOption({
+      tooltip: {
+        ...tooltipBase,
+        trigger: "item",
+        formatter(p) {
+          if (!p.data) return p.name || "";
+          if (p.data.group) {
+            return `<div style="font-weight:600;margin-bottom:4px">${esc(p.data.group.district)}</div>`
+              + row("点位数", `${p.data.group.count} 个`, "#175d8d")
+              + row("地图精度", "区级聚合（坐标服务暂不可用）");
+          }
+          if (!p.data.point) return p.name || "";
+          const d = p.data.point;
+          const dist = pointDistance(d);
+          return `<div style="font-weight:600;margin-bottom:4px">${esc(d.name)}</div>`
+            + row("类型", d.type, d.type === "助餐点" ? "#b54633" : "#175d8d")
+            + row("地址", d.address)
+            + row("位置精度", d.geoLevel === "street" ? "街道级近似" : "区级近似")
+            + (dist !== null ? row("离我", `${dist.toFixed(1)} km`, "#b54633") : "");
+        },
+      },
+      geo: {
+        map: "tianjin",
+        roam: true,
+        zoom: 1.38,
+        center: mapState.location ? [mapState.location[1], mapState.location[0]] : [117.18, 39.13],
+        itemStyle: { areaColor: "#eaf3f8", borderColor: "#c3d8e5", borderWidth: 1 },
+        emphasis: { itemStyle: { areaColor: "#d7e8f2" }, label: { color: "#102338" } },
+        label: { show: true, color: "#6f8798", fontSize: 9 },
+      },
+      series: [{
+        name: "养老点位",
+        type: "scatter",
+        coordinateSystem: "geo",
+        data,
+        symbolSize: (val) => hasStreet ? 6 : Math.max(14, Math.min(32, 10 + Math.sqrt(val[2] || 1) * 1.7)),
+        itemStyle: { borderColor: "#ffffff", borderWidth: 1, opacity: 0.9 },
+        emphasis: { scale: 1.8, itemStyle: { borderColor: "#102338", borderWidth: 1.5 } },
+      }],
+    }, true);
+    mapChart.resize();
+  }
+
+  if (mapEl && window.echarts && window.TJ_GEO) {
+    window.echarts.registerMap("tianjin", window.TJ_GEO);
+    mapChart = window.echarts.init(mapEl, null, { renderer: "canvas" });
+    mapChart.on("click", (params) => {
+      if (params.componentType === "series" && params.data && params.data.point) {
+        mapState.selected = params.data.point;
+        const d = params.data.point;
+        if (mapState.district === "全部" && DISTRICTS.some((x) => x.name === d.district)) {
+          mapState.district = d.district;
+          renderMap();
+        }
+        return;
+      }
+      if (params.componentType === "series" && params.data && params.data.group) {
+        mapState.district = params.data.group.district;
+        renderMap();
+        return;
+      }
+      const name = params.name;
+      if (name && DISTRICTS.some((x) => x.name === name)) {
+        mapState.district = mapState.district === name ? "全部" : name;
+        renderMap();
+      }
+    });
+    renderMap();
+    window.addEventListener("resize", () => mapChart.resize(), { passive: true });
+    if (window.ResizeObserver) new ResizeObserver(() => mapChart.resize()).observe(mapEl);
+  } else if (mapEl) {
+    mapEl.innerHTML = `<div class="map-empty" style="height:100%;display:grid;place-items:center">地图数据加载失败，请确认 data/tianjin_geo.js 存在。</div>`;
+  }
+
+  if (locateBtn) {
+    locateBtn.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        locateStatus.textContent = "浏览器不支持定位";
+        return;
+      }
+      locateStatus.textContent = "正在定位…";
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          mapState.location = [pos.coords.latitude, pos.coords.longitude];
+          locateStatus.textContent = `已定位 · ${mapState.location[0].toFixed(3)}, ${mapState.location[1].toFixed(3)}`;
+          renderMap();
+        },
+        () => {
+          locateStatus.textContent = "定位失败，可改用区筛选";
+        },
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+      );
+    });
+  }
+
+  // A 的补点清单：直接由缺口排序生成，和缺口图联动
+  const aActions = document.getElementById("aActions");
+  if (aActions && EXTREMES.gapTop && EXTREMES.gapTop.length) {
+    const list = EXTREMES.gapTop;
+    aActions.innerHTML = `
+      <div class="a-actions-head">
+        <div>
+          <p class="section-index">A · 补点清单</p>
+          <h3>按当前数据，先看这三个区</h3>
+        </div>
+        <p>缺口 = 需求指数 − 供给指数。先补“最弱那一类”，再到 B 看这个区的点位。</p>
+      </div>
+      <div class="a-action-grid">
+        ${list.map((d, i) => `
+          <article class="a-action-card">
+            <div class="a-action-top">
+              <span class="a-action-rank">0${i + 1}</span>
+              <span class="a-action-gap">${d.gap > 0 ? "+" : ""}${d.gap.toFixed(1)}</span>
+            </div>
+            <h4>${d.name}</h4>
+            <p>老龄化 ${d.aging.toFixed(1)}% · 供给指数 ${d.index.toFixed(1)}</p>
+            <a href="#/map" class="a-action-tag" data-district="${d.name}">到地图看 ${d.name} →</a>
+          </article>`).join("")}
+      </div>`;
+    aActions.querySelectorAll(".a-action-tag").forEach((link) => {
+      link.addEventListener("click", () => {
+        mapState.district = link.dataset.district;
+        renderMap();
+      });
+    });
+  }
+
   setText("dataNoteText", META.dataNote);
   setText("mealNoteText", META.facilityNote);
   const sourcesEl = document.getElementById("dataSources");
   if (sourcesEl) sourcesEl.textContent = `数据来源：${META.sources.join("；")}。`;
+
+  /* ---------------- 分页路由 ---------------- */
+  const PAGES = new Set(["home", "map", "checkup", "directory", "lab", "conclusion"]);
+  const PAGE_ALIASES = { visual: "checkup", facilities: "directory", insights: "conclusion" };
+  function pageFromHash() {
+    const h = window.location.hash.replace(/^#\/?/, "");
+    if (PAGE_ALIASES[h]) return PAGE_ALIASES[h];
+    return PAGES.has(h) ? h : "home";
+  }
+  function showPage(name, updateHash = true) {
+    if (!PAGES.has(name)) name = "home";
+    document.querySelectorAll(".page").forEach((p) => {
+      p.classList.toggle("active", p.dataset.page === name);
+    });
+    navLinks.forEach((link) => {
+      link.classList.toggle("active", link.dataset.page === name);
+    });
+    if (updateHash && window.location.hash !== `#/${name}`) {
+      history.replaceState(null, "", `#/${name}`);
+    }
+    window.scrollTo(0, 0);
+    window.setTimeout(() => {
+      if (chart) chart.resize();
+      if (labChart) labChart.resize();
+      if (mapChart) mapChart.resize();
+    }, 60);
+  }
+  window.addEventListener("hashchange", () => showPage(pageFromHash(), false));
+  showPage(pageFromHash(), false);
 })();
