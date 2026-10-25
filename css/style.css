@@ -2379,3 +2379,18 @@ body.modal-open {
   color: var(--blue);
   font-size: 9.5px;
 }
+
+.purpose-note {
+  max-width: 590px;
+  margin: 12px 0 0;
+  padding: 8px 11px;
+  border-left: 3px solid var(--blue);
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.65;
+}
+
+.purpose-note strong {
+  color: var(--ink);
+}
