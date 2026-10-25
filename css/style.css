@@ -1282,3 +1282,546 @@ svg {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------- A 补点清单 ---------- */
+.a-actions {
+  margin-top: 16px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.a-actions-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.a-actions-head h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+}
+
+.a-actions-head > p {
+  max-width: 430px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.a-action-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.a-action-card {
+  padding: 13px;
+  border: 1px solid #e3edf3;
+  border-radius: 11px;
+  background: #f4f9fc;
+}
+
+.a-action-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.a-action-rank {
+  color: var(--muted-2);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.a-action-gap {
+  color: var(--red);
+  font-size: 17px;
+  font-weight: 780;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.a-action-card h4 {
+  margin: 3px 0 2px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.a-action-card p {
+  margin: 0 0 9px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.a-action-tag {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--red-soft);
+  color: var(--red);
+  font-size: 9.5px;
+  font-weight: 650;
+}
+
+.a-action-tag:hover {
+  background: var(--red);
+  color: #fff;
+}
+
+@media (max-width: 860px) {
+  .a-actions-head {
+    display: block;
+  }
+
+  .a-actions-head > p {
+    margin-top: 8px;
+  }
+
+  .a-action-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- B 附近地图 ---------- */
+.map-section {
+  padding-top: 58px;
+}
+
+.map-shell {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.map-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 0 2px 12px;
+}
+
+.map-toolbar .chips {
+  gap: 5px;
+}
+
+.map-toolbar .chip {
+  padding: 5px 10px;
+  font-size: 10px;
+}
+
+.map-tools {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.map-btn {
+  padding: 6px 11px;
+  border: 1px solid var(--blue);
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.map-btn:hover {
+  background: var(--blue-dark);
+}
+
+.locate-status {
+  color: var(--muted-2);
+  font-size: 9.5px;
+}
+
+.map-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.map-canvas-wrap {
+  min-width: 0;
+}
+
+.map-canvas {
+  width: 100%;
+  height: 560px;
+  border-radius: 12px;
+  background: #f7fbfd;
+}
+
+.map-note {
+  margin: 7px 2px 0;
+  color: var(--muted-2);
+  font-size: 9.5px;
+  line-height: 1.55;
+}
+
+.map-side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
+  border-left: 1px solid var(--line);
+}
+
+.map-district-card {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  background: #f5fafd;
+}
+
+.map-card-label {
+  margin: 0 0 3px;
+  color: var(--blue);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.map-district-card h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+}
+
+.map-district-card p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.map-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.map-card-head > span {
+  color: var(--red);
+  font-size: 9.5px;
+  font-weight: 650;
+}
+
+.map-card-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin-top: 9px;
+}
+
+.map-card-metrics > div {
+  padding: 6px;
+  border: 1px solid #e1edf4;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.map-card-metrics b {
+  display: block;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.25;
+}
+
+.map-card-metrics b.is-gap {
+  color: var(--red);
+}
+
+.map-card-metrics span {
+  display: block;
+  margin-top: 1px;
+  color: var(--muted-2);
+  font-size: 8px;
+}
+
+.map-card-link {
+  display: inline-block;
+  margin-top: 9px;
+  color: var(--blue);
+  font-size: 9.5px;
+  font-weight: 650;
+}
+
+.map-card-link:hover {
+  color: var(--red);
+}
+
+.map-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 14px 7px;
+  color: var(--muted);
+  font-size: 9.5px;
+}
+
+.map-list-head strong {
+  color: var(--ink);
+  font-size: 10px;
+}
+
+.map-list {
+  overflow: auto;
+  max-height: 430px;
+  padding: 0 14px 12px;
+}
+
+.map-point {
+  padding: 9px 0;
+  border-top: 1px solid var(--line);
+}
+
+.map-point:first-child {
+  border-top: 0;
+}
+
+.map-point-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.map-point-type {
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 8.5px;
+  font-weight: 650;
+}
+
+.map-point-type.is-meal {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.map-point-type.is-day {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.map-point-geo {
+  color: var(--muted-2);
+  font-size: 8.5px;
+}
+
+.map-point-dist {
+  margin-left: auto;
+  color: var(--red);
+  font-size: 9px;
+  font-weight: 650;
+}
+
+.map-point h4 {
+  margin: 4px 0 2px;
+  color: var(--ink);
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.map-point p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 9.5px;
+  line-height: 1.55;
+}
+
+.map-point-phone {
+  display: inline-block;
+  margin-top: 3px;
+  color: var(--blue);
+  font-size: 9px;
+}
+
+.map-list-more,
+.map-empty {
+  padding: 14px 0;
+  color: var(--muted-2);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+@media (max-width: 1000px) {
+  .map-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .map-canvas {
+    height: 460px;
+  }
+
+  .map-side {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .map-list {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 760px) {
+  .map-shell {
+    padding: 10px;
+  }
+
+  .map-canvas {
+    height: 360px;
+  }
+
+  .map-tools {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .map-list {
+    max-height: 320px;
+  }
+}
+
+/* ---------- 分页 ---------- */
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+.section-meta {
+  max-width: 430px;
+}
+
+.page-scope {
+  display: inline-flex;
+  margin: 8px 0 0;
+  padding: 4px 9px;
+  border: 1px solid #cfe1ec;
+  border-radius: 999px;
+  background: #f2f8fc;
+  color: var(--blue);
+  font-size: 9.5px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.lab .page-scope {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.07);
+  color: #b9d3e2;
+}
+
+/* 首页两个入口 */
+.home-doors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.home-door {
+  position: relative;
+  display: block;
+  padding: 18px 20px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.home-door::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--blue);
+}
+
+.home-door-a::before {
+  background: var(--red);
+}
+
+.home-door:hover {
+  transform: translateY(-2px);
+  border-color: #bfd5e4;
+  box-shadow: var(--shadow);
+}
+
+.home-door-tag {
+  color: var(--blue);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.home-door-a .home-door-tag {
+  color: var(--red);
+}
+
+.home-door strong {
+  display: block;
+  margin: 4px 0 2px;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 760;
+  letter-spacing: -0.015em;
+}
+
+.home-door p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.6;
+}
+
+.home-door-arrow {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--blue);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.home-door-a .home-door-arrow {
+  color: var(--red);
+}
+
+@media (max-width: 760px) {
+  .home-doors {
+    grid-template-columns: 1fr;
+  }
+
+  .section-meta {
+    max-width: none;
+  }
+}
