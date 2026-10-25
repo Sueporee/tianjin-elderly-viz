@@ -2286,15 +2286,24 @@ body.modal-open {
 
 .map-categories {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
   margin-top: 9px;
   padding-top: 9px;
   border-top: 1px solid var(--line);
 }
 
+.map-cat-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .map-cat-label {
+  flex: 0 0 auto;
+  min-width: 52px;
   color: var(--blue);
   font-size: 9px;
   font-weight: 700;
