@@ -2277,3 +2277,36 @@ body.modal-open {
     font-size: 23px;
   }
 }
+
+.map-toolbar-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.map-categories {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+}
+
+.map-cat-label {
+  color: var(--blue);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.map-categories .chips {
+  gap: 5px;
+}
+
+.map-categories .chip {
+  padding: 5px 9px;
+  font-size: 9.5px;
+}
