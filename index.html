@@ -7,8 +7,8 @@
   <meta name="description" content="天津 16 区养老资源体检：看老年人口、助餐点、日间照料中心与卫生床位，支持补点优先级实验。">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <title>海河养老资源体检 · 天津 16 区</title>
-  <link rel="stylesheet" href="css/style.css?v=3">
-  <link rel="stylesheet" href="css/lab.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=4">
+  <link rel="stylesheet" href="css/lab.css?v=4">
 </head>
 <body>
   <div class="masthead">
@@ -21,9 +21,18 @@
 
   <header class="site-header">
     <div class="container header-inner">
-      <a class="brand" href="#home">
-        <span class="brand-mark">津</span>
-        <span class="brand-text">海河养老资源体检</span>
+      <a class="brand" href="#/home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 44 44" role="presentation">
+            <path class="river river-a" d="M5 25 C 12 10, 19 34, 26 20 S 35 12, 39 18"/>
+            <path class="river river-b" d="M5 32 C 13 18, 20 38, 28 25 S 36 19, 39 25"/>
+            <circle class="river-dot" cx="34" cy="9.5" r="3"/>
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <span class="brand-text"><b>海河</b>养老资源体检</span>
+          <span class="brand-sub">TIANJIN · 16 DISTRICTS</span>
+        </span>
       </a>
       <nav class="nav" id="nav">
         <a href="#/home" class="nav-link active" data-page="home">首页</a>
@@ -110,17 +119,17 @@
       </div>
 
       <div class="container home-doors">
-        <a class="home-door home-door-b" href="#/map">
-          <span class="home-door-tag">B · 居民视角</span>
-          <strong>找附近服务</strong>
-          <p>中心城区试点 · 750 个点位 · 定位后按距离排序</p>
-          <span class="home-door-arrow">进入地图 →</span>
-        </a>
         <a class="home-door home-door-a" href="#/checkup">
           <span class="home-door-tag">A · 决策视角</span>
           <strong>看资源体检</strong>
           <p>全市 16 区 · 老龄化、设施密度、供需缺口</p>
           <span class="home-door-arrow">进入图表 →</span>
+        </a>
+        <a class="home-door home-door-b" href="#/map">
+          <span class="home-door-tag">B · 居民视角</span>
+          <strong>找附近服务</strong>
+          <p>中心城区试点 · 750 个点位 · 定位后按距离排序</p>
+          <span class="home-door-arrow">进入地图 →</span>
         </a>
       </div>
 
@@ -377,9 +386,9 @@
     </div>
   </footer>
 
-  <script src="data/app_data.js?v=3"></script>
-  <script src="data/tianjin_geo.js?v=3"></script>
+  <script src="data/app_data.js?v=4"></script>
+  <script src="data/tianjin_geo.js?v=4"></script>
   <script src="vendor/echarts.min.js"></script>
-  <script src="js/app.js?v=3"></script>
+  <script src="js/app.js?v=4"></script>
 </body>
 </html>
