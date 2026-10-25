@@ -7,8 +7,8 @@
   <meta name="description" content="天津 16 区养老资源体检：看老年人口、助餐点、日间照料中心与卫生床位，支持补点优先级实验。">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <title>海河养老资源体检 · 天津 16 区</title>
-  <link rel="stylesheet" href="css/style.css?v=4">
-  <link rel="stylesheet" href="css/lab.css?v=4">
+  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/lab.css?v=5">
 </head>
 <body>
   <div class="masthead">
@@ -133,36 +133,6 @@
         </a>
       </div>
 
-      <div class="container home-guide">
-        <div class="home-guide-head">
-          <div>
-            <p class="section-index">使用说明 / 03 步</p>
-            <h2>先找服务，再看资源</h2>
-          </div>
-          <p>B 面解决“附近有什么”，A 面解释“为什么这里缺”。两页不混在一起。</p>
-        </div>
-        <div class="home-guide-grid">
-          <article>
-            <span>01</span>
-            <h3>定位或选区</h3>
-            <p>在“附近服务”里定位，或直接选和平、河西、南开、河东、河北。</p>
-          </article>
-          <article>
-            <span>02</span>
-            <h3>看附近点位</h3>
-            <p>按助餐/日照筛选，查看名称、地址、电话；距离是街道级近似，只作参考。</p>
-          </article>
-          <article>
-            <span>03</span>
-            <h3>回到资源体检</h3>
-            <p>看这个区的老龄化、供给指数和缺口，判断下一步该补哪类设施。</p>
-          </article>
-        </div>
-        <p class="home-scope-note">
-          <strong>为什么地图只有 750 个点位？</strong>
-          B 目前是中心城区 5 区试点；全市 16 区共有 2,015 个助餐点、1,342 个日照中心，区级总数见“区级账本”。
-        </p>
-      </div>
     </section>
 
     <section class="section map-section page" id="map" data-page="map">
@@ -386,9 +356,49 @@
     </div>
   </footer>
 
-  <script src="data/app_data.js?v=4"></script>
-  <script src="data/tianjin_geo.js?v=4"></script>
+  <button class="help-fab" id="helpOpen" type="button" aria-haspopup="dialog" aria-controls="helpModal">
+    <span class="help-fab-mark">?</span>
+    <span>使用说明</span>
+  </button>
+
+  <div class="help-modal" id="helpModal" aria-hidden="true">
+    <div class="help-backdrop" data-help-close></div>
+    <div class="help-dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <button class="help-close" type="button" data-help-close aria-label="关闭使用说明">×</button>
+      <p class="section-index">使用说明 / 03 步</p>
+      <h2 id="helpTitle">先找服务，再看资源</h2>
+      <p class="help-lead">B 面解决“附近有什么”，A 面解释“为什么这里缺”。两页不混在一起。</p>
+      <div class="home-guide-grid">
+        <article>
+          <span>01</span>
+          <h3>定位或选区</h3>
+          <p>在“附近服务”里定位，或直接选和平、河西、南开、河东、河北。</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>看附近点位</h3>
+          <p>按助餐/日照筛选，查看名称、地址、电话；距离是街道级近似，只作参考。</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>回到资源体检</h3>
+          <p>看这个区的老龄化、供给指数和缺口，判断下一步该补哪类设施。</p>
+        </article>
+      </div>
+      <p class="home-scope-note">
+        <strong>为什么地图只有 750 个点位？</strong>
+        B 目前是中心城区 5 区试点；全市 16 区共有 2,015 个助餐点、1,342 个日照中心，区级总数见“区级账本”。
+      </p>
+      <div class="help-actions">
+        <a class="btn btn-primary" href="#/map" data-help-close>去 B 找附近服务</a>
+        <a class="btn btn-ghost" href="#/checkup" data-help-close>去 A 看资源体检</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="data/app_data.js?v=5"></script>
+  <script src="data/tianjin_geo.js?v=5"></script>
   <script src="vendor/echarts.min.js"></script>
-  <script src="js/app.js?v=4"></script>
+  <script src="js/app.js?v=5"></script>
 </body>
 </html>
