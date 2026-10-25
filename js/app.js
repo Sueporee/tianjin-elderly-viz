@@ -712,7 +712,7 @@
   /* ---------------- B 真实底图 ---------------- */
   const POINTS = DATA.points || [];
   const POINT_SUMMARY = DATA.pointSummary || {};
-  const mapState = { type: "全部", district: "全部", location: null, focus: null, selected: null };
+  const mapState = { type: "全部", district: "全部", street: null, location: null, focus: null, selected: null };
   const mapEl = document.getElementById("tjMap");
   const mapListEl = document.getElementById("mapList");
   const mapListCount = document.getElementById("mapListCount");
@@ -721,6 +721,9 @@
   const locateBtn = document.getElementById("locateBtn");
   const locateStatus = document.getElementById("locateStatus");
   const typeFilterEl = document.getElementById("pointTypeFilters");
+  const mapSearchEl = document.getElementById("mapSearch");
+  const mapSearchResults = document.getElementById("mapSearchResults");
+  const STREETS = [...new Set(POINTS.map((p) => p.street).filter(Boolean))];
   let map = null;
   let districtLayer = null;
   let markerLayer = null;
@@ -761,7 +764,8 @@
     if (mapState.type === "卫生床位") return [];
     return POINTS.filter((p) =>
       (mapState.type === "全部" || p.type === mapState.type) &&
-      (mapState.district === "全部" || p.district === mapState.district)
+      (mapState.district === "全部" || p.district === mapState.district) &&
+      (!mapState.street || p.street === mapState.street)
     ).sort((a, b) => {
       if (mapState.location) return pointDistance(a) - pointDistance(b);
       return a.district.localeCompare(b.district, "zh") || a.name.localeCompare(b.name, "zh");
@@ -837,6 +841,69 @@
     return POINTS.filter((p) => p.district === name && (type === "全部" || p.type === type)).length;
   }
 
+  function searchPlaces(query) {
+    const q = String(query || "").trim();
+    if (!q) return [];
+    const items = [];
+    DISTRICTS.filter((d) => d.name.includes(q)).slice(0, 3).forEach((d) => items.push({ kind: "district", value: d.name, label: d.name, note: "行政区" }));
+    STREETS.filter((s) => s.includes(q)).slice(0, 5).forEach((s) => items.push({ kind: "street", value: s, label: s, note: "街道" }));
+    POINTS.filter((p) => p.name.includes(q) || p.address.includes(q)).slice(0, 6).forEach((p) => items.push({ kind: "point", value: p.name, label: p.name, note: `点位 · ${p.district}`, point: p }));
+    return items;
+  }
+
+  function choosePlace(item) {
+    if (!item) return;
+    if (item.kind === "district") {
+      mapState.district = item.value;
+      mapState.street = null;
+      mapState.selected = null;
+      mapState.focus = centerOf(item.value);
+    } else if (item.kind === "street") {
+      const p = POINTS.find((x) => x.street === item.value);
+      if (p) {
+        mapState.district = p.district;
+        mapState.street = item.value;
+        mapState.selected = null;
+        mapState.focus = pointLatLng(p);
+      }
+    } else if (item.kind === "point") {
+      const p = item.point;
+      mapState.district = p.district;
+      mapState.street = null;
+      mapState.selected = p;
+      mapState.focus = pointLatLng(p);
+    }
+    if (mapSearchEl) mapSearchEl.value = item.label;
+    if (mapSearchResults) mapSearchResults.classList.remove("open");
+    renderMap();
+  }
+
+  function renderSearchResults() {
+    if (!mapSearchResults) return;
+    const items = searchPlaces(mapSearchEl?.value || "");
+    if (!items.length) { mapSearchResults.classList.remove("open"); mapSearchResults.innerHTML = ""; return; }
+    mapSearchResults.innerHTML = items.map((item, i) =>
+      `<button class="map-search-item" type="button" data-index="${i}">${esc(item.label)}<small>${item.note}</small></button>`
+    ).join("");
+    mapSearchResults.classList.add("open");
+    mapSearchResults.querySelectorAll(".map-search-item").forEach((btn) => {
+      btn.addEventListener("click", () => choosePlace(items[Number(btn.dataset.index)]));
+    });
+  }
+
+  if (mapSearchEl) {
+    mapSearchEl.addEventListener("input", renderSearchResults);
+    mapSearchEl.addEventListener("focus", renderSearchResults);
+    mapSearchEl.addEventListener("keydown", (e) => {
+      const items = searchPlaces(mapSearchEl.value);
+      if (e.key === "Escape") { mapSearchResults.classList.remove("open"); mapSearchEl.blur(); }
+      if (e.key === "Enter" && items.length) { e.preventDefault(); choosePlace(items[0]); }
+    });
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".map-search-wrap")) mapSearchResults?.classList.remove("open");
+    });
+  }
+
   function buildMapFilters() {
     const counts = { "全部": POINT_SUMMARY.total || 0, "助餐点": POINT_SUMMARY.meal || 0, "日间照料": POINT_SUMMARY.daycare || 0 };
     const types = ["全部", "助餐点", "日间照料", "卫生床位"];
@@ -847,6 +914,7 @@
       btn.addEventListener("click", () => {
         mapState.type = btn.dataset.type;
         mapState.selected = null;
+        mapState.street = null;
         if (mapState.type === "卫生床位") mapState.district = "全部";
         buildMapFilters();
         renderMap();
@@ -869,6 +937,7 @@
       btn.addEventListener("click", () => {
         mapState.district = btn.dataset.district;
         mapState.selected = null;
+        mapState.street = null;
         mapState.focus = mapState.district === "全部" ? null : centerOf(mapState.district);
         renderMap();
       });
@@ -936,6 +1005,7 @@
     mapListEl.querySelectorAll(".map-point[data-district]").forEach((el) => {
       el.addEventListener("click", () => {
         mapState.district = el.dataset.district; mapState.selected = null;
+        mapState.street = null;
         mapState.focus = centerOf(mapState.district); renderMap();
       });
     });
@@ -953,9 +1023,13 @@
       if (showPoints) {
         const all = filteredPoints();
         const approx = all.filter((p) => p.geoLevel !== "street").length;
-        note.textContent = approx
-          ? `街道级点位按街道合并显示；另有 ${approx} 个区级近似点位在右侧列表，不在地图上伪造位置。`
-          : "当前为街道级点位；点选可看详情。";
+        if (mapState.street) {
+          note.textContent = `当前筛选街道：${mapState.street}；共 ${all.length} 个点位。`;
+        } else {
+          note.textContent = approx
+            ? `街道级点位按街道合并显示；另有 ${approx} 个区级近似点位在右侧列表，不在地图上伪造位置。`
+            : "当前为街道级点位；点选可看详情。";
+        }
       } else {
         note.textContent = "颜色=区级设施密度；点击地图气泡或右侧区名，查看该区具体点位。";
       }
@@ -1052,7 +1126,7 @@
           const f = districtAt(gcj[0], gcj[1]);
           if (f) {
             const name = f.properties?.name || "";
-            mapState.district = name; mapState.focus = centerOf(name);
+            mapState.district = name; mapState.street = null; mapState.focus = centerOf(name);
             locateStatus.textContent = `已定位 · ${name} · ${wgs[0].toFixed(3)}, ${wgs[1].toFixed(3)}`;
           } else {
             mapState.focus = gcj;
