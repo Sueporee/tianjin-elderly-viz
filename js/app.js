@@ -710,7 +710,7 @@
   /* ---------------- B 附近地图 ---------------- */
   const POINTS = DATA.points || [];
   const POINT_SUMMARY = DATA.pointSummary || {};
-  const mapState = { type: "全部", district: "全部", location: null, selected: null };
+  const mapState = { scope: "pilot", type: "全部", metric: "meal", district: "全部", location: null, selected: null };
   const mapEl = document.getElementById("tjMap");
   const mapListEl = document.getElementById("mapList");
   const mapListCount = document.getElementById("mapListCount");
@@ -750,13 +750,34 @@
   }
 
   function buildMapFilters() {
-    const types = ["全部", "助餐点", "日间照料"];
-    typeFilterEl.innerHTML = types.map((t) =>
-      `<button class="chip ${t === mapState.type ? "active" : ""}" type="button" data-type="${t}">${t}</button>`
+    let scopeEl = document.getElementById("mapScopeFilters");
+    if (scopeEl) {
+      const scopes = [["pilot", "中心城区试点"], ["city", "全市 16 区"]];
+      scopeEl.innerHTML = scopes.map(([key, label]) =>
+        `<button class="chip ${key === mapState.scope ? "active" : ""}" type="button" data-scope="${key}">${label}</button>`
+      ).join("");
+      scopeEl.querySelectorAll(".chip").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          mapState.scope = btn.dataset.scope;
+          mapState.district = "全部";
+          mapState.type = "全部";
+          buildMapFilters();
+          renderMap();
+        });
+      });
+    }
+
+    const isCity = mapState.scope === "city";
+    const chips = isCity
+      ? [["meal", "助餐点"], ["daycare", "日间照料"], ["beds", "卫生床位"]]
+      : [["all", "全部"], ["meal", "助餐点"], ["daycare", "日间照料"]];
+    typeFilterEl.innerHTML = chips.map(([key, label]) =>
+      `<button class="chip ${(isCity ? mapState.metric === key : mapState.type === (key === "all" ? "全部" : key === "meal" ? "助餐点" : "日间照料")) ? "active" : ""}" type="button" data-key="${key}">${label}</button>`
     ).join("");
     typeFilterEl.querySelectorAll(".chip").forEach((btn) => {
       btn.addEventListener("click", () => {
-        mapState.type = btn.dataset.type;
+        if (isCity) mapState.metric = btn.dataset.key;
+        else mapState.type = btn.dataset.key === "all" ? "全部" : btn.dataset.key === "meal" ? "助餐点" : "日间照料";
         buildMapFilters();
         renderMap();
       });
@@ -769,6 +790,7 @@
       districtEl.className = "chips";
       typeFilterEl.insertAdjacentElement("afterend", districtEl);
     }
+    districtEl.style.display = isCity ? "none" : "flex";
     const ds = ["全部", ...(POINT_SUMMARY.coveredDistricts || [])];
     districtEl.innerHTML = ds.map((d) =>
       `<button class="chip ${d === mapState.district ? "active" : ""}" type="button" data-district="${d}">${d}</button>`
@@ -807,7 +829,32 @@
       <a class="map-card-link" href="#/checkup">去 A 看这个区的图表 →</a>`;
   }
 
+  function renderCityList() {
+    const metricMap = {
+      meal: { key: "mealPer10k", count: "meal", label: "助餐点", unit: "个/万老人" },
+      daycare: { key: "daycarePer10k", count: "daycare", label: "日间照料", unit: "个/万老人" },
+      beds: { key: "bedsPer10k", count: "beds", label: "卫生床位", unit: "张/万老人" },
+    };
+    const m = metricMap[mapState.metric] || metricMap.meal;
+    const list = DISTRICTS.filter((d) => mapState.district === "全部" || d.name === mapState.district)
+      .sort((a, b) => b[m.key] - a[m.key]);
+    if (mapListCount) mapListCount.textContent = `${list.length} 个区 · 按${m.label}密度`;
+    if (mapListSort) mapListSort.textContent = "全市区级图层";
+    if (!mapListEl) return;
+    mapListEl.innerHTML = list.map((d) => `
+      <article class="map-point">
+        <div class="map-point-top">
+          <span class="map-point-type ${mapState.metric === "meal" ? "is-meal" : "is-day"}">${m.label}</span>
+          <span class="map-point-geo">区级</span>
+          <span class="map-point-dist">${d[m.key].toFixed(1)} ${m.unit}</span>
+        </div>
+        <h4>${esc(d.name)}</h4>
+        <p>共 ${fmt(d[m.count])} · 老龄化 ${d.aging.toFixed(1)}% · 缺口 ${d.gap > 0 ? "+" : ""}${d.gap.toFixed(1)}</p>
+      </article>`).join("");
+  }
+
   function renderMapList() {
+    if (mapState.scope === "city") return renderCityList();
     const list = filteredPoints();
     if (mapListCount) mapListCount.textContent = `共 ${list.length} 个点位`;
     if (mapListSort) mapListSort.textContent = mapState.location ? "按离我距离排序" : "按区 / 名称";
@@ -834,19 +881,42 @@
   }
 
   function renderMap() {
+    const desc = document.getElementById("mapDesc");
+    if (desc) {
+      desc.textContent = mapState.scope === "city"
+        ? "全市 16 区：按区级设施密度着色，颜色越深越密；点位详情仅中心城区试点提供。"
+        : "中心城区试点：和平、河西、南开、河东、河北。定位后按距离排序；点位为区级/街道级近似，不显示门牌级精度。";
+    }
     const scope = document.getElementById("mapScope");
     if (scope) {
-      const ds = (POINT_SUMMARY.coveredDistricts || []).length;
-      scope.textContent = `试点范围：${ds} 区 · ${POINT_SUMMARY.total || 0} 个点位（助餐 ${POINT_SUMMARY.meal || 0} / 日照 ${POINT_SUMMARY.daycare || 0}；街道级 ${POINT_SUMMARY.street || 0} / 区级 ${POINT_SUMMARY.district || 0}）`;
+      if (mapState.scope === "city") {
+        scope.textContent = "全市 16 区 · 区级图层（点位详情仅中心城区试点）";
+      } else {
+        const ds = (POINT_SUMMARY.coveredDistricts || []).length;
+        scope.textContent = `试点范围：${ds} 区 · ${POINT_SUMMARY.total || 0} 个点位（助餐 ${POINT_SUMMARY.meal || 0} / 日照 ${POINT_SUMMARY.daycare || 0}；街道级 ${POINT_SUMMARY.street || 0} / 区级 ${POINT_SUMMARY.district || 0}）`;
+      }
     }
     buildMapFilters();
     renderMapDistrict();
     renderMapList();
     if (!mapChart) return;
     const list = filteredPoints();
+    const cityMode = mapState.scope === "city";
     const hasStreet = (POINT_SUMMARY.street || 0) > 0;
     let data = [];
-    if (hasStreet) {
+    let regions = [];
+    if (cityMode) {
+      const metricKey = { meal: "mealPer10k", daycare: "daycarePer10k", beds: "bedsPer10k" }[mapState.metric] || "mealPer10k";
+      const vals = DISTRICTS.map((d) => d[metricKey]);
+      const lo = Math.min(...vals);
+      const hi = Math.max(...vals);
+      regions = DISTRICTS.map((d) => ({
+        name: d.name,
+        itemStyle: {
+          areaColor: mixColor([234, 243, 248], [23, 93, 141], hi === lo ? 0.5 : (d[metricKey] - lo) / (hi - lo)),
+        },
+      }));
+    } else if (hasStreet) {
       data = list.map((p) => ({
         name: p.name,
         value: [p.lon, p.lat],
@@ -877,8 +947,12 @@
       });
     }
     const note = document.querySelector(".map-note");
-    if (note && !hasStreet) {
-      note.textContent = "坐标服务暂不可用：地图按区聚合；下方列表仍可查看点位名称、地址和电话（区级近似）。";
+    if (note) {
+      if (cityMode) {
+        note.textContent = "全市区级图层：颜色越深代表该指标密度越高；点位详情仅中心城区试点提供。";
+      } else if (!hasStreet) {
+        note.textContent = "坐标服务暂不可用：地图按区聚合；下方列表仍可查看点位名称、地址和电话（区级近似）。";
+      }
     }
     mapChart.setOption({
       tooltip: {
@@ -904,10 +978,11 @@
       geo: {
         map: "tianjin",
         roam: true,
-        zoom: 1.38,
-        center: mapState.location ? [mapState.location[1], mapState.location[0]] : [117.18, 39.13],
+        zoom: mapState.scope === "city" ? 1.02 : 1.38,
+        center: mapState.location ? [mapState.location[1], mapState.location[0]] : (mapState.scope === "city" ? [117.2, 39.15] : [117.18, 39.13]),
         itemStyle: { areaColor: "#eaf3f8", borderColor: "#c3d8e5", borderWidth: 1 },
         emphasis: { itemStyle: { areaColor: "#d7e8f2" }, label: { color: "#102338" } },
+        regions,
         label: { show: true, color: "#6f8798", fontSize: 9 },
       },
       series: [{
