@@ -728,6 +728,7 @@
   let districtLayer = null;
   let markerLayer = null;
   let bubbleLayer = null;
+  let highlightLayer = null;
 
   function updatePointCopy() {
     const ds = (POINT_SUMMARY.coveredDistricts || []).length;
@@ -1011,6 +1012,22 @@
     });
   }
 
+  function highlightSelected() {
+    if (!map || !highlightLayer) return;
+    highlightLayer.clearLayers();
+    const p = mapState.selected;
+    if (!p) return;
+    const latlng = p.geoLevel === "street" ? pointLatLng(p) : centerOf(p.district);
+    if (!latlng) return;
+    L.circleMarker(latlng, {
+      radius: 11, color: "#b54633", weight: 2, fillColor: "#ffffff", fillOpacity: 0.18, dashArray: "3,3",
+    }).addTo(highlightLayer);
+    const content = `<div class="selected-popup"><strong>${esc(p.name)}</strong><br>${esc(p.district)} · ${esc(p.address)}${p.phone ? `<br><a href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}<br><small>${p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料 ${p.quality}` : ""}</small></div>`;
+    L.popup({ autoClose: false, closeOnClick: false, className: "selected-popup-wrap", maxWidth: 270 })
+      .setLatLng(latlng).setContent(content).openOn(map);
+    map.setView(latlng, Math.max(map.getZoom(), 13));
+  }
+
   function renderMap() {
     updatePointCopy();
     buildMapFilters();
@@ -1090,6 +1107,7 @@
       });
       map.fitBounds(districtLayer.getBounds(), { padding: [18, 18] });
     }
+    highlightSelected();
   }
 
   if (mapEl && window.L && window.TJ_GEO) {
@@ -1107,6 +1125,7 @@
     }).addTo(map);
     markerLayer = L.layerGroup().addTo(map);
     bubbleLayer = L.layerGroup().addTo(map);
+    highlightLayer = L.layerGroup().addTo(map);
     renderMap();
     window.addEventListener("resize", () => map.invalidateSize(), { passive: true });
     if (window.ResizeObserver) new ResizeObserver(() => map.invalidateSize()).observe(mapEl);
