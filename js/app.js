@@ -551,7 +551,7 @@
   buildSortChips();
   renderList();
 
-  /* ---------------- 资源优先级实验室 ---------------- */
+  /* ---------------- 资源优先级推演 ---------------- */
   const weightState = { meal: 40, daycare: 35, health: 25 };
   const mealRange = document.getElementById("mealRange");
   const daycareRange = document.getElementById("daycareRange");
@@ -704,7 +704,7 @@
   }
   if (bestD) {
     setText("insightIndex", bestD.index.toFixed(1));
-    setText("insightIndexText", `${bestD.name}最高，${worstD.name}最低（${worstD.index.toFixed(1)}）；拖动实验室权重，排名会变化。`);
+    setText("insightIndexText", `${bestD.name}最高，${worstD.name}最低（${worstD.index.toFixed(1)}）；拖动推演权重，排名会变化。`);
   }
 
   /* ---------------- B 附近地图 ---------------- */
