@@ -26,18 +26,18 @@
   const byDay = [...DISTRICTS].sort((a, b) => a.daycarePer10k - b.daycarePer10k);
 
   const isNarrow = window.innerWidth < 640;
-  const chartText = { fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif' };
+  const chartText = { fontFamily: '"Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif' };
   const tooltipBase = {
     backgroundColor: "rgba(255,255,255,0.98)",
     borderColor: "#d6cdbb",
     borderWidth: 1,
     padding: [10, 12],
-    textStyle: { color: "#211f1a", fontSize: 12, fontFamily: '"Microsoft YaHei", sans-serif' },
+    textStyle: { color: "#102338", fontSize: 12, fontFamily: '"Microsoft YaHei", sans-serif' },
     extraCssText: "box-shadow:0 10px 28px rgba(22,32,42,.12);border-radius:10px;",
   };
   const row = (label, value, color) =>
-    `<div style="display:flex;justify-content:space-between;gap:22px;margin-top:4px;color:#4a453c">
-      <span>${label}</span><b style="color:${color || "#211f1a"}">${value}</b>
+    `<div style="display:flex;justify-content:space-between;gap:22px;margin-top:4px;color:#33475b">
+      <span>${label}</span><b style="color:${color || "#102338"}">${value}</b>
     </div>`;
 
   /* ---------------- 首页 ---------------- */
@@ -93,7 +93,7 @@
 
   const populationOption = () => ({
     textStyle: chartText,
-    color: ["#0b5b4e", "#a84b1f"],
+    color: ["#175d8d", "#b54633"],
     tooltip: {
       ...tooltipBase,
       trigger: "axis",
@@ -102,7 +102,7 @@
         const d = byAgingDesc[params[0].dataIndex];
         return `<div style="font-weight:600;margin-bottom:4px">${d.name}</div>`
           + row("60 岁及以上", `${(d.elderly60 / 10000).toFixed(2)} 万`)
-          + row("老龄化率", pct(d.aging), "#a84b1f")
+          + row("老龄化率", pct(d.aging), "#b54633")
           + row("2020 常住人口", `${(d.pop2020 / 10000).toFixed(2)} 万`);
       },
     },
@@ -113,16 +113,16 @@
       icon: "rect",
       itemWidth: 10,
       itemHeight: 6,
-      textStyle: { color: "#746c5e", fontSize: 11 },
+      textStyle: { color: "#5f7182", fontSize: 11 },
     },
     grid: { left: 55, right: 58, top: 44, bottom: isNarrow ? 100 : 82 },
     xAxis: {
       type: "category",
       data: byAgingDesc.map((d) => d.name),
       axisTick: { show: false },
-      axisLine: { lineStyle: { color: "#b9ad97" } },
+      axisLine: { lineStyle: { color: "#b8c8d4" } },
       axisLabel: {
-        color: "#746c5e",
+        color: "#5f7182",
         fontSize: isNarrow ? 9 : 10,
         rotate: isNarrow ? 45 : 32,
         interval: isNarrow ? 1 : 0,
@@ -132,17 +132,17 @@
       {
         type: "value",
         name: "60+人口（万人）",
-        nameTextStyle: { color: "#8c8270", fontSize: 10, padding: [0, 0, 6, 0] },
-        axisLabel: { color: "#8c8270", fontSize: 10 },
-        splitLine: { lineStyle: { color: "#e6dece" } },
+        nameTextStyle: { color: "#8fa3b3", fontSize: 10, padding: [0, 0, 6, 0] },
+        axisLabel: { color: "#8fa3b3", fontSize: 10 },
+        splitLine: { lineStyle: { color: "#d8e2e9" } },
       },
       {
         type: "value",
         name: "老龄化率（%）",
         min: 12,
         max: 35,
-        nameTextStyle: { color: "#8c8270", fontSize: 10, padding: [0, 0, 6, 0] },
-        axisLabel: { color: "#8c8270", fontSize: 10, formatter: "{value}%" },
+        nameTextStyle: { color: "#8fa3b3", fontSize: 10, padding: [0, 0, 6, 0] },
+        axisLabel: { color: "#8fa3b3", fontSize: 10, formatter: "{value}%" },
         splitLine: { show: false },
       },
     ],
@@ -152,8 +152,8 @@
         type: "bar",
         data: byAgingDesc.map((d) => +(d.elderly60 / 10000).toFixed(2)),
         barWidth: "55%",
-        itemStyle: { borderRadius: 0, color: "#0b5b4e" },
-        emphasis: { itemStyle: { color: "#08483e" } },
+        itemStyle: { borderRadius: 0, color: "#175d8d" },
+        emphasis: { itemStyle: { color: "#0e3f63" } },
       },
       {
         name: "老龄化率",
@@ -163,8 +163,8 @@
         symbol: "circle",
         symbolSize: 7,
         data: byAgingDesc.map((d) => d.aging),
-        lineStyle: { width: 2.2, color: "#a84b1f" },
-        itemStyle: { color: "#a84b1f", borderColor: "#fbf8f0", borderWidth: 1.2 },
+        lineStyle: { width: 2.2, color: "#b54633" },
+        itemStyle: { color: "#b54633", borderColor: "#ffffff", borderWidth: 1.2 },
       },
     ],
   });
@@ -198,7 +198,7 @@
         const m = heatMetrics[p.data[0]];
         const per = p.data[0] === 2 ? "张 / 万名老人" : "个 / 万名老人";
         return `<div style="font-weight:600;margin-bottom:4px">${d.name} · ${m.label}</div>`
-          + row("每万老人", `${p.data[2].toFixed(1)} ${per}`, "#0b5b4e")
+          + row("每万老人", `${p.data[2].toFixed(1)} ${per}`, "#175d8d")
           + row("绝对数量", m.label === "卫生床位" ? `${fmt(d.beds)} 张` : `${fmt(d[m.label === "助餐点" ? "meal" : "daycare"])} 个`);
       },
     },
@@ -208,16 +208,16 @@
       data: heatMetrics.map((m) => m.label),
       splitArea: { show: true },
       axisTick: { show: false },
-      axisLine: { lineStyle: { color: "#b9ad97" } },
-      axisLabel: { color: "#746c5e", fontSize: 11 },
+      axisLine: { lineStyle: { color: "#b8c8d4" } },
+      axisLabel: { color: "#5f7182", fontSize: 11 },
     },
     yAxis: {
       type: "category",
       data: heatRows.map((d) => d.name),
       splitArea: { show: true },
       axisTick: { show: false },
-      axisLine: { lineStyle: { color: "#b9ad97" } },
-      axisLabel: { color: "#746c5e", fontSize: 9.5 },
+      axisLine: { lineStyle: { color: "#b8c8d4" } },
+      axisLabel: { color: "#5f7182", fontSize: 9.5 },
     },
     visualMap: {
       min: 0,
@@ -229,9 +229,9 @@
       itemWidth: 10,
       itemHeight: 100,
       text: ["高", "低"],
-      textStyle: { color: "#8c8270", fontSize: 9 },
+      textStyle: { color: "#8fa3b3", fontSize: 9 },
       calculable: false,
-      inRange: { color: ["#fbf8f0", "#e7c9a3", "#a84b1f"] },
+      inRange: { color: ["#f4f8fb", "#cfe3f1", "#175d8d"] },
     },
     series: [{
       name: "设施配置",
@@ -239,11 +239,14 @@
       data: heatData,
       label: {
         show: true,
-        formatter: (p) => p.data[2].toFixed(1),
+        formatter: (p) => `{${p.data[3] > 0.62 ? "light" : "dark"}|${p.data[2].toFixed(1)}}`,
         fontSize: 8.5,
-        color: "#211f1a",
+        rich: {
+          light: { color: "#ffffff" },
+          dark: { color: "#102338" },
+        },
       },
-      itemStyle: { borderColor: "#fbf8f0", borderWidth: 2 },
+      itemStyle: { borderColor: "#ffffff", borderWidth: 2 },
       emphasis: { itemStyle: { shadowBlur: 8, shadowColor: "rgba(0,0,0,.2)" } },
     }],
   });
@@ -256,15 +259,15 @@
     ];
     return {
       textStyle: chartText,
-      color: ["#0b5b4e", "#a84b1f"],
+      color: ["#175d8d", "#b54633"],
       title: {
         text: fmt(totalPoints),
         subtext: "个社区养老点位",
         left: "center",
         top: "36%",
         textAlign: "center",
-        textStyle: { color: "#211f1a", fontSize: 24, fontWeight: 700, fontFamily: '"Noto Serif SC", "SimSun", serif' },
-        subtextStyle: { color: "#8c8270", fontSize: 11 },
+        textStyle: { color: "#102338", fontSize: 24, fontWeight: 700, fontFamily: '"Segoe UI", "Microsoft YaHei", sans-serif' },
+        subtextStyle: { color: "#8fa3b3", fontSize: 11 },
       },
       tooltip: { ...tooltipBase, trigger: "item", formatter: "{b}<br/><b>{c}</b> 个（{d}%）" },
       legend: {
@@ -273,15 +276,15 @@
         icon: "circle",
         itemWidth: 8,
         itemHeight: 8,
-        textStyle: { color: "#746c5e", fontSize: 11 },
+        textStyle: { color: "#5f7182", fontSize: 11 },
       },
       series: [{
         name: "点位构成",
         type: "pie",
         radius: ["42%", "68%"],
         center: ["50%", "44%"],
-        itemStyle: { borderColor: "#fbf8f0", borderWidth: 2 },
-        label: { color: "#4a453c", fontSize: 11, formatter: "{b}\n{d}%" },
+        itemStyle: { borderColor: "#ffffff", borderWidth: 2 },
+        label: { color: "#33475b", fontSize: 11, formatter: "{b}\n{d}%" },
         labelLine: { length: 10, length2: 8 },
         data: pieData,
       }],
@@ -294,8 +297,8 @@
   }
   function indexColor(value) {
     const t = Math.max(0, Math.min(1, value / 100));
-    if (t < 0.5) return mixColor([168, 75, 31], [169, 124, 36], t * 2);
-    return mixColor([169, 124, 36], [11, 91, 78], (t - 0.5) * 2);
+    if (t < 0.5) return mixColor([181, 70, 51], [127, 168, 196], t * 2);
+    return mixColor([127, 168, 196], [23, 93, 141], (t - 0.5) * 2);
   }
 
   const matchOption = () => {
@@ -309,7 +312,7 @@
       name: d.name,
       value: [d.aging, d.daycarePer10k, d.elderly60, d.index],
       symbolSize: Math.max(14, Math.sqrt(d.elderly60 / 10000) * 14),
-      itemStyle: { color: indexColor(d.index), borderColor: "#fbf8f0", borderWidth: 1.5, opacity: 0.92 },
+      itemStyle: { color: indexColor(d.index), borderColor: "#ffffff", borderWidth: 1.5, opacity: 0.92 },
     }));
 
     return {
@@ -321,9 +324,9 @@
           const v = p.data.value;
           return `<div style="font-weight:600;margin-bottom:4px">${p.name}</div>`
             + row("老龄化率", `${v[0].toFixed(1)}%`)
-            + row("每万老人日间照料", `${v[1].toFixed(1)} 个`, "#a84b1f")
+            + row("每万老人日间照料", `${v[1].toFixed(1)} 个`, "#b54633")
             + row("60+ 人口", `${(v[2] / 10000).toFixed(1)} 万`)
-            + row("综合便利指数", v[3].toFixed(1), "#0b5b4e");
+            + row("综合便利指数", v[3].toFixed(1), "#175d8d");
         },
       },
       grid: { left: 62, right: 28, top: 28, bottom: 54 },
@@ -331,18 +334,18 @@
         type: "value",
         min: 14,
         max: 33,
-        axisLabel: { color: "#8c8270", fontSize: 10, formatter: "{value}%" },
-        splitLine: { lineStyle: { color: "#e6dece" } },
+        axisLabel: { color: "#8fa3b3", fontSize: 10, formatter: "{value}%" },
+        splitLine: { lineStyle: { color: "#d8e2e9" } },
       },
       yAxis: {
         type: "value",
-        axisLabel: { color: "#8c8270", fontSize: 10 },
-        splitLine: { lineStyle: { color: "#e6dece" } },
+        axisLabel: { color: "#8fa3b3", fontSize: 10 },
+        splitLine: { lineStyle: { color: "#d8e2e9" } },
       },
       series: [{
         type: "scatter",
         data,
-        label: { show: true, position: "top", formatter: "{b}", color: "#4a453c", fontSize: 9.5 },
+        label: { show: true, position: "top", formatter: "{b}", color: "#33475b", fontSize: 9.5 },
         labelLayout: (params) => {
           const off = offsets[params.text] || [0, -9];
           return { dx: off[0], dy: off[1] };
@@ -350,7 +353,7 @@
         markLine: {
           silent: true,
           symbol: "none",
-          lineStyle: { type: "dashed", color: "#8c8270" },
+          lineStyle: { type: "dashed", color: "#8fa3b3" },
           label: { show: false },
           data: [{ xAxis: avgAging }, { yAxis: avgDay }],
         },
@@ -560,7 +563,7 @@
         formatter(params) {
           const d = list.find((x) => x.name === params[0].name);
           return `<div style="font-weight:600;margin-bottom:4px">${d.name}</div>`
-            + row("自定义指数", d.custom.toFixed(1), "#0b5b4e")
+            + row("自定义指数", d.custom.toFixed(1), "#175d8d")
             + row("助餐点", `${d.mealPer10k.toFixed(1)}/万`)
             + row("日间照料", `${d.daycarePer10k.toFixed(1)}/万`)
             + row("卫生床位", `${d.bedsPer10k.toFixed(0)}/万`);
@@ -569,15 +572,15 @@
       xAxis: {
         type: "value",
         max: 100,
-        axisLabel: { color: "#8c8270", fontSize: 9 },
-        splitLine: { lineStyle: { color: "#e6dece" } },
+        axisLabel: { color: "#8fa3b3", fontSize: 9 },
+        splitLine: { lineStyle: { color: "#d8e2e9" } },
       },
       yAxis: {
         type: "category",
         data: sorted.map((d) => d.name),
         axisTick: { show: false },
-        axisLine: { lineStyle: { color: "#b9ad97" } },
-        axisLabel: { color: "#746c5e", fontSize: 9 },
+        axisLine: { lineStyle: { color: "#b8c8d4" } },
+        axisLabel: { color: "#5f7182", fontSize: 9 },
       },
       series: [{
         type: "bar",
@@ -586,7 +589,7 @@
           itemStyle: { color: indexColor(d.custom) },
         })),
         barMaxWidth: 12,
-        label: { show: true, position: "right", formatter: "{c}", fontSize: 9, color: "#746c5e" },
+        label: { show: true, position: "right", formatter: "{c}", fontSize: 9, color: "#5f7182" },
       }],
     }, true);
     labChart.resize();
