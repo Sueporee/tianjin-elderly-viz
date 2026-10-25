@@ -1012,6 +1012,39 @@
   const sourcesEl = document.getElementById("dataSources");
   if (sourcesEl) sourcesEl.textContent = `数据来源：${META.sources.join("；")}。`;
 
+  /* ---------------- 使用说明弹窗 ---------------- */
+  const helpModal = document.getElementById("helpModal");
+  const helpOpen = document.getElementById("helpOpen");
+  let lastFocus = null;
+
+  function openHelp() {
+    if (!helpModal) return;
+    lastFocus = document.activeElement;
+    helpModal.classList.add("open");
+    helpModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+    const close = helpModal.querySelector(".help-close");
+    if (close) close.focus();
+  }
+
+  function closeHelp() {
+    if (!helpModal) return;
+    helpModal.classList.remove("open");
+    helpModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  if (helpOpen) helpOpen.addEventListener("click", openHelp);
+  if (helpModal) {
+    helpModal.querySelectorAll("[data-help-close]").forEach((el) => {
+      el.addEventListener("click", closeHelp);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && helpModal.classList.contains("open")) closeHelp();
+    });
+  }
+
   /* ---------------- 分页路由 ---------------- */
   const PAGES = new Set(["home", "map", "checkup", "directory", "lab", "conclusion"]);
   const PAGE_ALIASES = { visual: "checkup", facilities: "directory", insights: "conclusion" };
@@ -1022,6 +1055,7 @@
   }
   function showPage(name, updateHash = true) {
     if (!PAGES.has(name)) name = "home";
+    if (helpModal && helpModal.classList.contains("open")) closeHelp();
     document.querySelectorAll(".page").forEach((p) => {
       p.classList.toggle("active", p.dataset.page === name);
     });
