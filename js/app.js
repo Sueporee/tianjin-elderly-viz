@@ -712,7 +712,7 @@
   /* ---------------- B 真实底图 ---------------- */
   const POINTS = DATA.points || [];
   const POINT_SUMMARY = DATA.pointSummary || {};
-  const mapState = { type: "全部", district: "全部", street: null, location: null, focus: null, selected: null };
+  const mapState = { type: "全部", district: "全部", street: null, location: null, locationGcj: null, focus: null, selected: null };
   const mapEl = document.getElementById("tjMap");
   const mapListEl = document.getElementById("mapList");
   const mapListCount = document.getElementById("mapListCount");
@@ -757,9 +757,9 @@
   }
 
   function pointDistance(p) {
-    // 区级近似点没有真实门牌坐标，不计算/显示假距离。
-    if (!mapState.location || p.geoLevel !== "street") return null;
-    return haversine(mapState.location, [p.lat, p.lon]);
+    if (!mapState.location) return null;
+    const loc = p.coordSys === "gcj" ? mapState.locationGcj : mapState.location;
+    return loc ? haversine(loc, [p.lat, p.lon]) : null;
   }
 
   function filteredPoints() {
@@ -805,7 +805,9 @@
   }
 
   function pointLatLng(p) {
-    return p.geoLevel === "street" ? wgs84ToGcj02(p.lat, p.lon) : [p.lat, p.lon];
+    if (p.coordSys === "gcj") return [p.lat, p.lon];
+    if (p.coordSys === "wgs" || p.geoLevel === "street") return wgs84ToGcj02(p.lat, p.lon);
+    return [p.lat, p.lon];
   }
 
   function centerOf(name) {
@@ -968,7 +970,7 @@
     const p = mapState.selected;
     if (!p) { el.className = "map-selection"; el.innerHTML = ""; return; }
     el.className = "map-selection open";
-    el.innerHTML = `<div class="map-selection-top"><span>已选中点位 · ${p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料 ${p.quality}` : ""}</span><button class="map-selection-close" type="button" data-clear-point aria-label="关闭">×</button></div>
+    el.innerHTML = `<div class="map-selection-top"><span>已选中点位 · ${p.geoLevel === "address" ? "门址级" : p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料 ${p.quality}` : ""}</span><button class="map-selection-close" type="button" data-clear-point aria-label="关闭">×</button></div>
       <h4>${esc(p.name)}</h4><p>${esc(p.district)} · ${esc(p.address)}</p>
       ${p.phone ? `<a href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}`;
     const close = el.querySelector("[data-clear-point]");
@@ -983,7 +985,7 @@
     if (!list.length) { mapListEl.innerHTML = `<div class="map-empty">这个分类下没有点位。</div>`; return; }
     mapListEl.innerHTML = list.slice(0, 50).map((p) => {
       const dist = pointDistance(p);
-      const geo = `${p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料${p.quality}` : ""}`;
+      const geo = `${p.geoLevel === "address" ? "门址级" : p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料${p.quality}` : ""}`;
       return `<article class="map-point"><div class="map-point-top"><span class="map-point-type ${p.type === "助餐点" ? "is-meal" : "is-day"}">${p.type}</span><span class="map-point-geo">${geo}</span>${dist !== null ? `<span class="map-point-dist">${dist.toFixed(1)} km</span>` : ""}</div><h4>${esc(p.name)}</h4><p>${esc(p.district)} · ${esc(p.address)}</p>${p.phone ? `<a class="map-point-phone" href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}</article>`;
     }).join("") + (list.length > 50 ? `<p class="map-list-more">还有 ${list.length - 50} 个点位，缩小到具体区可查看更多。</p>` : "");
     mapListEl.querySelectorAll(".map-point").forEach((el, i) => {
@@ -1045,8 +1047,8 @@
           note.textContent = `当前筛选街道：${mapState.street}；共 ${all.length} 个点位。`;
         } else {
           note.textContent = approx
-            ? `街道级点位按街道合并显示；另有 ${approx} 个区级近似点位在右侧列表，不在地图上伪造位置。`
-            : "当前为街道级点位；点选可看详情。";
+            ? `门址/街道级点位单独显示；另有 ${approx} 个区级近似点位在右侧列表，不在地图上伪造位置。`
+            : "当前为门址/街道级点位；点选可看详情。";
         }
       } else {
         note.textContent = "颜色=区级设施密度；点击地图气泡或右侧区名，查看该区具体点位。";
@@ -1067,11 +1069,13 @@
     bubbleLayer.clearLayers();
     if (showPoints) {
       const all = filteredPoints();
-      const streetPoints = all.filter((p) => p.geoLevel === "street");
-      const approxPoints = all.filter((p) => p.geoLevel !== "street");
+      const exactPoints = all.filter((p) => p.geoLevel !== "district");
+      const approxPoints = all.filter((p) => p.geoLevel === "district");
       const groups = {};
-      streetPoints.forEach((p) => {
-        const key = p.street || `${p.lat.toFixed(4)},${p.lon.toFixed(4)}`;
+      exactPoints.forEach((p) => {
+        const key = p.geoLevel === "address"
+          ? `addr-${p.lat}-${p.lon}-${p.name}`
+          : (p.street || `${p.lat.toFixed(4)},${p.lon.toFixed(4)}`);
         if (!groups[key]) groups[key] = { points: [], lat: p.lat, lon: p.lon, type: p.type };
         groups[key].points.push(p);
       });
@@ -1088,7 +1092,7 @@
           renderMap();
         });
       });
-      if (approxPoints.length && streetPoints.length === 0) {
+      if (approxPoints.length && exactPoints.length === 0) {
         const c = centerOf(mapState.district);
         if (c) {
           const b = L.circleMarker(c, { radius: Math.max(18, Math.min(40, 14 + Math.sqrt(approxPoints.length) * 2.2)), color: "#fff", weight: 1.5, fillColor: "#175d8d", fillOpacity: 0.88 }).addTo(bubbleLayer);
@@ -1143,6 +1147,7 @@
           const wgs = [pos.coords.latitude, pos.coords.longitude];
           const gcj = wgs84ToGcj02(wgs[0], wgs[1]);
           mapState.location = wgs;
+          mapState.locationGcj = gcj;
           const f = districtAt(gcj[0], gcj[1]);
           if (f) {
             const name = f.properties?.name || "";
