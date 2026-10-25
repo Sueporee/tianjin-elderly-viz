@@ -916,7 +916,7 @@
         if (!p) return;
         mapState.selected = p;
         mapState.district = p.district;
-        mapState.focus = [p.lon, p.lat];
+        mapState.focus = p.geoLevel === "street" ? [p.lon, p.lat] : centerOf(p.district);
         renderMap();
       });
     });
@@ -992,7 +992,7 @@
     else renderPointList();
     const note = document.querySelector(".map-note");
     if (note) note.textContent = showPoints
-      ? "当前为具体点位（区级/街道级近似）；点选可看详情。"
+      ? "街道级点位单独显示；区级点位合并为一个气泡，不再伪造位置。"
       : "当前为区级聚合；点击地图气泡或右侧区名，查看该区具体点位。";
 
     if (!mapChart) return;
@@ -1011,12 +1011,27 @@
     const showPointMarkers = mapState.district !== "全部" && mapState.type !== "卫生床位";
     let data = [];
     if (showPointMarkers) {
-      data = filteredPoints().map((p) => ({
+      const all = filteredPoints();
+      const streetPoints = all.filter((p) => p.geoLevel === "street");
+      const approxPoints = all.filter((p) => p.geoLevel !== "street");
+      data = streetPoints.map((p) => ({
         name: p.name,
         value: [p.lon, p.lat],
         point: p,
         itemStyle: { color: p.type === "助餐点" ? "#b54633" : "#175d8d" },
       }));
+      if (approxPoints.length) {
+        const c = centerOf(mapState.district) || [117.2, 39.15];
+        data.push({
+          name: `${mapState.district}区级点位`,
+          value: [c[0], c[1], approxPoints.length],
+          cluster: true,
+          count: approxPoints.length,
+          district: mapState.district,
+          itemStyle: { color: "#175d8d", opacity: 0.88, borderColor: "#fff", borderWidth: 1.5 },
+          label: { show: true, formatter: `${approxPoints.length}`, color: "#fff", fontSize: 9 },
+        });
+      }
     } else {
       const centers = {};
       (window.TJ_GEO?.features || []).forEach((f) => {
@@ -1040,6 +1055,11 @@
         trigger: "item",
         formatter(p) {
           if (!p.data) return p.name || "";
+          if (p.data.cluster) {
+            return `<div style="font-weight:600;margin-bottom:4px">${esc(p.data.district)} · 区级点位</div>`
+              + row("点位数", `${p.data.count} 个`, "#175d8d")
+              + row("位置", "区级近似，未伪造门牌坐标");
+          }
           if (p.data.district && !p.data.point) {
             return `<div style="font-weight:600;margin-bottom:4px">${esc(p.data.district)}</div>`
               + row("点位数", `${p.data.count} 个`, "#175d8d")
@@ -1070,7 +1090,9 @@
         type: "scatter",
         coordinateSystem: "geo",
         data,
-        symbolSize: (val) => showPointMarkers ? 5.5 : Math.max(16, Math.min(38, 13 + Math.sqrt(val[2] || 1) * 1.7)),
+        symbolSize: (val) => showPointMarkers
+          ? (val[2] ? Math.max(18, Math.min(40, 14 + Math.sqrt(val[2]) * 2.2)) : 5.5)
+          : Math.max(16, Math.min(38, 13 + Math.sqrt(val[2] || 1) * 1.7)),
         itemStyle: { borderColor: "#ffffff", borderWidth: 1, opacity: 0.88 },
         emphasis: { scale: 1.8, itemStyle: { borderColor: "#102338", borderWidth: 1.5 } },
       }],
@@ -1093,7 +1115,7 @@
         const p = params.data.point;
         mapState.selected = p;
         mapState.district = p.district;
-        mapState.focus = [p.lon, p.lat];
+        mapState.focus = p.geoLevel === "street" ? [p.lon, p.lat] : centerOf(p.district);
         renderMap();
         return;
       }
