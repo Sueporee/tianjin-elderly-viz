@@ -1496,6 +1496,13 @@ svg {
   padding: 0 2px 12px;
 }
 
+.map-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
 .map-toolbar .chips {
   gap: 5px;
 }
