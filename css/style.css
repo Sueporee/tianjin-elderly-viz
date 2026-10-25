@@ -255,24 +255,55 @@ svg {
 .eyebrow {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   margin: 0 0 18px;
-  padding: 6px 11px;
-  border: 1px solid #c9dfec;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--blue);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
   font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 650;
+  letter-spacing: 0.04em;
 }
 
-.eyebrow::before {
-  content: "";
+.eyebrow-loc {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+}
+
+.eyebrow-loc i {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--red);
+}
+
+.eyebrow-scope {
+  padding-left: 8px;
+  border-left: 1px solid var(--line-strong);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 550;
+}
+
+.eyebrow-mode {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: 9px;
+  font-weight: 650;
+}
+
+.eyebrow-mode.is-a {
+  background: var(--red-soft);
+  color: var(--red);
 }
 
 .hero h1 {
