@@ -7,8 +7,8 @@
   <meta name="description" content="天津 16 区养老资源体检：看老年人口、助餐点、日间照料中心与卫生床位，支持补点优先级实验。">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <title>海河养老资源 · 天津 16 区</title>
-  <link rel="stylesheet" href="css/style.css?v=10">
-  <link rel="stylesheet" href="css/lab.css?v=10">
+  <link rel="stylesheet" href="css/style.css?v=11">
+  <link rel="stylesheet" href="css/lab.css?v=11">
 </head>
 <body>
   <div class="masthead">
@@ -146,34 +146,37 @@
         <div class="section-head">
           <div class="section-title">
             <p class="section-index">01 / B · 附近服务</p>
-            <h2>先看附近有什么</h2>
+            <h2>一张地图，先看附近</h2>
           </div>
           <div class="section-meta">
-            <p class="section-desc" id="mapDesc">中心城区试点：和平、河西、南开、河东、河北。定位后按距离排序；点位为区级/街道级近似，不显示门牌级精度。</p>
-            <p class="page-scope" id="mapScope">试点范围：5 区 · 点位加载中</p>
+            <p class="section-desc" id="mapDesc">全市 16 区按所选指标着色，中心城区叠加点位；地图下方只留一行分类。</p>
+            <p class="page-scope" id="mapScope">全市 16 区底色 + 中心城区点位</p>
           </div>
         </div>
 
         <div class="map-shell">
           <div class="map-toolbar">
-            <div class="map-filter-group">
-              <div class="chips" id="mapScopeFilters"></div>
-              <div class="chips" id="pointTypeFilters"></div>
-            </div>
+            <p class="map-toolbar-note">全市区级底色 + 中心城区点位，统一在一张图上</p>
             <div class="map-tools">
               <button class="map-btn" id="locateBtn" type="button">定位我</button>
               <span class="locate-status" id="locateStatus">未定位，按区浏览</span>
             </div>
           </div>
+
           <div class="map-grid">
             <div class="map-canvas-wrap">
-              <div id="tjMap" class="map-canvas" role="img" aria-label="天津中心城区养老服务点位地图"></div>
-              <p class="map-note">点地图上的区或点位可筛选；坐标为中心城区区级/街道级近似，距离仅作参考。</p>
+              <div id="tjMap" class="map-canvas" role="img" aria-label="天津养老服务地图"></div>
+              <p class="map-note">颜色=区级设施密度；点=中心城区点位；坐标近似，距离仅作参考。</p>
+              <div class="map-categories">
+                <span class="map-cat-label">下属分类</span>
+                <div class="chips" id="pointTypeFilters"></div>
+              </div>
             </div>
+
             <aside class="map-side">
               <div class="map-district-card" id="mapDistrictCard"></div>
               <div class="map-list-head">
-                <strong id="mapListCount">正在加载点位…</strong>
+                <strong id="mapListCount">正在加载…</strong>
                 <span id="mapListSort">按区 / 名称</span>
               </div>
               <div class="map-list" id="mapList"></div>
@@ -405,9 +408,9 @@
     </div>
   </div>
 
-  <script src="data/app_data.js?v=10"></script>
-  <script src="data/tianjin_geo.js?v=10"></script>
+  <script src="data/app_data.js?v=11"></script>
+  <script src="data/tianjin_geo.js?v=11"></script>
   <script src="vendor/echarts.min.js"></script>
-  <script src="js/app.js?v=12"></script>
+  <script src="js/app.js?v=13"></script>
 </body>
 </html>
