@@ -710,7 +710,7 @@
   /* ---------------- B 统一地图 ---------------- */
   const POINTS = DATA.points || [];
   const POINT_SUMMARY = DATA.pointSummary || {};
-  const mapState = { type: "全部", district: "全部", location: null };
+  const mapState = { type: "全部", district: "全部", location: null, focus: null };
   const mapEl = document.getElementById("tjMap");
   const mapListEl = document.getElementById("mapList");
   const mapListCount = document.getElementById("mapListCount");
@@ -750,6 +750,36 @@
     });
   }
 
+  function pointInRing(lon, lat, ring) {
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const xi = ring[i][0], yi = ring[i][1];
+      const xj = ring[j][0], yj = ring[j][1];
+      const intersect = ((yi > lat) !== (yj > lat)) && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  }
+
+  function districtAt(lat, lon) {
+    for (const f of (window.TJ_GEO?.features || [])) {
+      if (!f.geometry) continue;
+      const polys = f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates;
+      for (const poly of polys) {
+        if (!poly || !poly[0]) continue;
+        if (pointInRing(lon, lat, poly[0]) && !poly.slice(1).some((hole) => pointInRing(lon, lat, hole))) {
+          return f;
+        }
+      }
+    }
+    return null;
+  }
+
+  function centerOf(name) {
+    const f = (window.TJ_GEO?.features || []).find((x) => x.properties?.name === name);
+    return f && (f.properties.center || f.properties.centroid) ? (f.properties.center || f.properties.centroid) : null;
+  }
+
   function buildMapFilters() {
     const types = ["全部", "助餐点", "日间照料", "卫生床位"];
     typeFilterEl.innerHTML = types.map((t) =>
@@ -779,6 +809,7 @@
     districtEl.querySelectorAll(".chip").forEach((btn) => {
       btn.addEventListener("click", () => {
         mapState.district = btn.dataset.district;
+        mapState.focus = mapState.district === "全部" ? null : centerOf(mapState.district);
         buildMapFilters();
         renderMap();
       });
@@ -904,8 +935,8 @@
       geo: {
         map: "tianjin",
         roam: true,
-        zoom: 1.12,
-        center: [117.2, 39.15],
+        zoom: mapState.focus ? 2.2 : 1.12,
+        center: mapState.focus || [117.2, 39.15],
         itemStyle: { areaColor: "#eaf3f8", borderColor: "#c3d8e5", borderWidth: 1 },
         emphasis: { itemStyle: { areaColor: "#d7e8f2" }, label: { color: "#102338" } },
         regions,
@@ -930,12 +961,14 @@
     mapChart.on("click", (params) => {
       if (params.componentType === "series" && params.data && params.data.point) {
         mapState.district = params.data.point.district;
+        mapState.focus = centerOf(mapState.district);
         renderMap();
         return;
       }
       const name = params.name;
       if (name && DISTRICTS.some((x) => x.name === name)) {
         mapState.district = mapState.district === name ? "全部" : name;
+        mapState.focus = mapState.district === "全部" ? null : centerOf(mapState.district);
         renderMap();
       }
     });
@@ -955,8 +988,20 @@
       locateStatus.textContent = "正在定位…";
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          mapState.location = [pos.coords.latitude, pos.coords.longitude];
-          locateStatus.textContent = `已定位 · ${mapState.location[0].toFixed(3)}, ${mapState.location[1].toFixed(3)}`;
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          mapState.location = [lat, lon];
+          const f = districtAt(lat, lon);
+          if (f) {
+            const name = f.properties?.name || "";
+            const c = f.properties?.center || f.properties?.centroid;
+            mapState.district = name;
+            mapState.focus = c || null;
+            locateStatus.textContent = `已定位 · ${name} · ${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+          } else {
+            mapState.focus = [lon, lat];
+            locateStatus.textContent = `已定位 · ${lat.toFixed(3)}, ${lon.toFixed(3)}（不在天津 16 区范围）`;
+          }
           renderMap();
         },
         () => {
