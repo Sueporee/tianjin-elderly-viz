@@ -757,9 +757,9 @@
   }
 
   function pointDistance(p) {
-    if (!mapState.location) return null;
-    const lat = p.geoLevel === "street" ? p.lat : p.lat;
-    return haversine(mapState.location, [lat, p.lon]);
+    // 区级近似点没有真实门牌坐标，不计算/显示假距离。
+    if (!mapState.location || p.geoLevel !== "street") return null;
+    return haversine(mapState.location, [p.lat, p.lon]);
   }
 
   function filteredPoints() {
