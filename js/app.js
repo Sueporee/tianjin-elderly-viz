@@ -602,7 +602,9 @@
     healthWeight.textContent = weightState.health;
     const text = `按当前权重（助餐 ${(w.meal * 100).toFixed(0)}% · 日照 ${(w.daycare * 100).toFixed(0)}% · 床位 ${(w.health * 100).toFixed(0)}%），`
       + `${best.name}最均衡（${best.custom.toFixed(1)}），${worst.name}最需要补（${worst.custom.toFixed(1)}）。`;
-    labInsight.textContent = text;
+    const sens = DATA.sensitivity;
+    const sensText = sens ? ` 权重敏感性：${sens.stable}/${sens.total} 区排名波动≤2 位，${sens.volatile} 区波动≥5 位；中间区对权重较敏感，需结合实地核查。` : "";
+    labInsight.textContent = text + sensText;
 
     if (!labChart) return;
     const sorted = list.slice().sort((a, b) => a.custom - b.custom);
@@ -871,7 +873,7 @@
     el.className = "map-selection open";
     el.innerHTML = `
       <div class="map-selection-top">
-        <span>已选中点位 · ${p.geoLevel === "street" ? "街道级近似" : "区级近似"}</span>
+        <span>已选中点位 · ${p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料 ${p.quality}` : ""}</span>
         <button class="map-selection-close" type="button" data-clear-point aria-label="关闭">×</button>
       </div>
       <h4>${esc(p.name)}</h4>
@@ -895,7 +897,7 @@
     }
     mapListEl.innerHTML = list.slice(0, 50).map((p) => {
       const dist = pointDistance(p);
-      const geo = p.geoLevel === "street" ? "街道级近似" : "区级近似";
+      const geo = `${p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料${p.quality}` : ""}`;
       return `
         <article class="map-point">
           <div class="map-point-top">
@@ -937,6 +939,44 @@
       </article>`).join("");
   }
 
+  function districtCount(name, type) {
+    if (type === "卫生床位") {
+      const d = DISTRICTS.find((x) => x.name === name);
+      return d ? d.beds : 0;
+    }
+    return POINTS.filter((p) => p.district === name && (type === "全部" || p.type === type)).length;
+  }
+
+  function renderAggregateList() {
+    const isBeds = mapState.type === "卫生床位";
+    const rows = DISTRICTS.map((d) => {
+      const count = districtCount(d.name, mapState.type);
+      const metric = isBeds ? d.bedsPer10k : (mapState.type === "助餐点" ? d.mealPer10k : mapState.type === "日间照料" ? d.daycarePer10k : d.index);
+      return { d, count, metric };
+    }).sort((a, b) => isBeds ? b.metric - a.metric : b.count - a.count);
+    if (mapListCount) mapListCount.textContent = `16 个区 · ${isBeds ? "按床位密度" : "按点位数"}`;
+    if (mapListSort) mapListSort.textContent = isBeds ? "区级图层" : "点击区查看点位";
+    if (!mapListEl) return;
+    mapListEl.innerHTML = rows.map(({ d, count, metric }) => `
+      <article class="map-point" data-district="${esc(d.name)}">
+        <div class="map-point-top">
+          <span class="map-point-type ${isBeds ? "is-day" : count > 0 ? "is-meal" : "is-day"}">${isBeds ? "卫生床位" : count > 0 ? "有点位" : "暂无点位"}</span>
+          <span class="map-point-geo">区级</span>
+          <span class="map-point-dist">${isBeds ? `${metric.toFixed(0)} 张/万老人` : `${count} 个`}</span>
+        </div>
+        <h4>${esc(d.name)}</h4>
+        <p>老龄化 ${d.aging.toFixed(1)}% · 综合指数 ${d.index.toFixed(1)} · 缺口 ${d.gap > 0 ? "+" : ""}${d.gap.toFixed(1)}</p>
+      </article>`).join("");
+    mapListEl.querySelectorAll(".map-point[data-district]").forEach((el) => {
+      el.addEventListener("click", () => {
+        mapState.district = el.dataset.district;
+        mapState.selected = null;
+        mapState.focus = centerOf(mapState.district);
+        renderMap();
+      });
+    });
+  }
+
   function renderMap() {
     updatePointCopy();
     const desc = document.getElementById("mapDesc");
@@ -947,10 +987,13 @@
     buildMapFilters();
     renderMapDistrict();
     renderSelection();
-    if (mapState.type === "卫生床位") renderDistrictList();
+    const showPoints = mapState.district !== "全部" && mapState.type !== "卫生床位";
+    if (!showPoints) renderAggregateList();
     else renderPointList();
     const note = document.querySelector(".map-note");
-    if (note) note.textContent = "颜色=区级设施密度；点=全市点位（区级/街道级近似）；距离仅作参考。";
+    if (note) note.textContent = showPoints
+      ? "当前为具体点位（区级/街道级近似）；点选可看详情。"
+      : "当前为区级聚合；点击地图气泡或右侧区名，查看该区具体点位。";
 
     if (!mapChart) return;
     const metricKey = mapState.type === "助餐点" ? "mealPer10k"
@@ -965,19 +1008,44 @@
         areaColor: mixColor([234, 243, 248], [23, 93, 141], hi === lo ? 0.5 : (d[metricKey] - lo) / (hi - lo)),
       },
     }));
-    const data = mapState.type === "卫生床位" ? [] : filteredPoints().map((p) => ({
-      name: p.name,
-      value: [p.lon, p.lat],
-      point: p,
-      itemStyle: { color: p.type === "助餐点" ? "#b54633" : "#175d8d" },
-    }));
+    const showPointMarkers = mapState.district !== "全部" && mapState.type !== "卫生床位";
+    let data = [];
+    if (showPointMarkers) {
+      data = filteredPoints().map((p) => ({
+        name: p.name,
+        value: [p.lon, p.lat],
+        point: p,
+        itemStyle: { color: p.type === "助餐点" ? "#b54633" : "#175d8d" },
+      }));
+    } else {
+      const centers = {};
+      (window.TJ_GEO?.features || []).forEach((f) => {
+        const p = f.properties || {};
+        const c = p.center || p.centroid;
+        if (c) centers[p.name] = c;
+      });
+      data = DISTRICTS.map((d) => ({
+        name: d.name,
+        value: [...(centers[d.name] || [117.2, 39.1]), districtCount(d.name, mapState.type)],
+        district: d.name,
+        count: districtCount(d.name, mapState.type),
+        itemStyle: { color: mapState.type === "助餐点" ? "#b54633" : "#175d8d", opacity: 0.88, borderColor: "#fff", borderWidth: 1.5 },
+        label: { show: true, formatter: `${districtCount(d.name, mapState.type)}`, color: "#fff", fontSize: 9 },
+      })).filter((x) => x.count > 0);
+    }
 
     mapChart.setOption({
       tooltip: {
         ...tooltipBase,
         trigger: "item",
         formatter(p) {
-          if (!p.data || !p.data.point) return p.name || "";
+          if (!p.data) return p.name || "";
+          if (p.data.district && !p.data.point) {
+            return `<div style="font-weight:600;margin-bottom:4px">${esc(p.data.district)}</div>`
+              + row("点位数", `${p.data.count} 个`, "#175d8d")
+              + row("操作", "点击查看该区点位", "#5f7182");
+          }
+          if (!p.data.point) return p.name || "";
           const d = p.data.point;
           const dist = pointDistance(d);
           return `<div style="font-weight:600;margin-bottom:4px">${esc(d.name)}</div>`
@@ -1002,7 +1070,7 @@
         type: "scatter",
         coordinateSystem: "geo",
         data,
-        symbolSize: 5.5,
+        symbolSize: (val) => showPointMarkers ? 5.5 : Math.max(16, Math.min(38, 13 + Math.sqrt(val[2] || 1) * 1.7)),
         itemStyle: { borderColor: "#ffffff", borderWidth: 1, opacity: 0.88 },
         emphasis: { scale: 1.8, itemStyle: { borderColor: "#102338", borderWidth: 1.5 } },
       }],
@@ -1014,6 +1082,13 @@
     window.echarts.registerMap("tianjin", window.TJ_GEO);
     mapChart = window.echarts.init(mapEl, null, { renderer: "canvas" });
     mapChart.on("click", (params) => {
+      if (params.componentType === "series" && params.data && params.data.district && !params.data.point) {
+        mapState.district = params.data.district;
+        mapState.selected = null;
+        mapState.focus = centerOf(mapState.district);
+        renderMap();
+        return;
+      }
       if (params.componentType === "series" && params.data && params.data.point) {
         const p = params.data.point;
         mapState.selected = p;
