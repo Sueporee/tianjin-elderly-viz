@@ -308,15 +308,19 @@ svg {
 
 .hero h1 {
   margin: 0;
+  color: var(--ink);
+  font-family: "方正小标宋简体", "FZXiaoBiaoSong-B05S", "FZXBSJW", "STZhongsong", "Noto Serif SC", "SimSun", serif;
   font-size: clamp(42px, 5.4vw, 68px);
-  font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: -0.045em;
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: 0.01em;
 }
 
 .hero h1 span {
   color: var(--blue);
-  background: linear-gradient(180deg, transparent 74%, rgba(23, 93, 141, 0.13) 74%);
+  background: none;
+  border-bottom: 4px solid rgba(181, 70, 51, 0.28);
+  padding-bottom: 3px;
 }
 
 .lead {
