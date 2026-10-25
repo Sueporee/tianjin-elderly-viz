@@ -992,7 +992,7 @@
       el.addEventListener("click", () => {
         const p = list[i]; if (!p) return;
         mapState.selected = p; mapState.district = p.district;
-        mapState.focus = p.geoLevel === "street" ? wgs84ToGcj02(p.lat, p.lon) : centerOf(p.district);
+        mapState.focus = p.geoLevel === "address" || p.geoLevel === "street" ? pointLatLng(p) : centerOf(p.district);
         renderMap();
       });
     });
@@ -1020,12 +1020,12 @@
     highlightLayer.clearLayers();
     const p = mapState.selected;
     if (!p) return;
-    const latlng = p.geoLevel === "street" ? pointLatLng(p) : centerOf(p.district);
+    const latlng = p.geoLevel === "address" || p.geoLevel === "street" ? pointLatLng(p) : centerOf(p.district);
     if (!latlng) return;
     L.circleMarker(latlng, {
       radius: 11, color: "#b54633", weight: 2, fillColor: "#ffffff", fillOpacity: 0.18, dashArray: "3,3",
     }).addTo(highlightLayer);
-    const content = `<div class="selected-popup"><strong>${esc(p.name)}</strong><br>${esc(p.district)} · ${esc(p.address)}${p.phone ? `<br><a href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}<br><small>${p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料 ${p.quality}` : ""}</small></div>`;
+    const content = `<div class="selected-popup"><strong>${esc(p.name)}</strong><br>${esc(p.district)} · ${esc(p.address)}${p.phone ? `<br><a href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}<br><small>${p.geoLevel === "address" ? "门址级" : p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料 ${p.quality}` : ""}</small></div>`;
     L.popup({ autoClose: false, closeOnClick: false, className: "selected-popup-wrap", maxWidth: 270 })
       .setLatLng(latlng).setContent(content).openOn(map);
     map.setView(latlng, Math.max(map.getZoom(), 13));
@@ -1042,7 +1042,7 @@
     if (note) {
       if (showPoints) {
         const all = filteredPoints();
-        const approx = all.filter((p) => p.geoLevel !== "street").length;
+        const approx = all.filter((p) => p.geoLevel === "district").length;
         if (mapState.street) {
           note.textContent = `当前筛选街道：${mapState.street}；共 ${all.length} 个点位。`;
         } else {
