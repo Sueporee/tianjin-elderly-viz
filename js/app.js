@@ -710,7 +710,7 @@
   /* ---------------- B 统一地图 ---------------- */
   const POINTS = DATA.points || [];
   const POINT_SUMMARY = DATA.pointSummary || {};
-  const mapState = { type: "全部", district: "全部", location: null, focus: null };
+  const mapState = { type: "全部", district: "全部", location: null, focus: null, selected: null };
   const mapEl = document.getElementById("tjMap");
   const mapListEl = document.getElementById("mapList");
   const mapListCount = document.getElementById("mapListCount");
@@ -720,6 +720,17 @@
   const locateStatus = document.getElementById("locateStatus");
   const typeFilterEl = document.getElementById("pointTypeFilters");
   let mapChart = null;
+
+  function updatePointCopy() {
+    const ds = (POINT_SUMMARY.coveredDistricts || []).length;
+    const total = POINT_SUMMARY.total || 0;
+    const home = document.getElementById("homePointText");
+    if (home) home.textContent = `全市 ${ds} 区 · ${total} 个点位 · 定位后按距离排序`;
+    const note = document.getElementById("heroPointNote");
+    if (note) note.textContent = `B 已收录 ${ds} 区 ${total} 个点位；中心城区为街道级近似，其他区为区级近似；具体服务以民政局名单为准。`;
+    const help = document.getElementById("helpPointNote");
+    if (help) help.innerHTML = `<strong>为什么地图有 ${total} 个点位？</strong>B 已收录 ${ds} 区民政局名单；中心城区较细，其他区为区级近似。全市区级总数仍以“区级账本”为准。`;
+  }
 
   function esc(s) {
     return String(s || "").replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
@@ -781,13 +792,19 @@
   }
 
   function buildMapFilters() {
+    const counts = {
+      "全部": POINT_SUMMARY.total || 0,
+      "助餐点": POINT_SUMMARY.meal || 0,
+      "日间照料": POINT_SUMMARY.daycare || 0,
+    };
     const types = ["全部", "助餐点", "日间照料", "卫生床位"];
     typeFilterEl.innerHTML = types.map((t) =>
-      `<button class="chip ${t === mapState.type ? "active" : ""}" type="button" data-type="${t}">${t}</button>`
+      `<button class="chip ${t === mapState.type ? "active" : ""}" type="button" data-type="${t}">${t}${counts[t] ? ` (${counts[t]})` : ""}</button>`
     ).join("");
     typeFilterEl.querySelectorAll(".chip").forEach((btn) => {
       btn.addEventListener("click", () => {
         mapState.type = btn.dataset.type;
+        mapState.selected = null;
         if (mapState.type === "卫生床位") mapState.district = "全部";
         buildMapFilters();
         renderMap();
@@ -809,6 +826,7 @@
     districtEl.querySelectorAll(".chip").forEach((btn) => {
       btn.addEventListener("click", () => {
         mapState.district = btn.dataset.district;
+        mapState.selected = null;
         mapState.focus = mapState.district === "全部" ? null : centerOf(mapState.district);
         buildMapFilters();
         renderMap();
@@ -841,6 +859,31 @@
       <a class="map-card-link" href="#/checkup">去 A 看这个区的图表 →</a>`;
   }
 
+  function renderSelection() {
+    const el = document.getElementById("mapSelection");
+    if (!el) return;
+    const p = mapState.selected;
+    if (!p) {
+      el.className = "map-selection";
+      el.innerHTML = "";
+      return;
+    }
+    el.className = "map-selection open";
+    el.innerHTML = `
+      <div class="map-selection-top">
+        <span>已选中点位 · ${p.geoLevel === "street" ? "街道级近似" : "区级近似"}</span>
+        <button class="map-selection-close" type="button" data-clear-point aria-label="关闭">×</button>
+      </div>
+      <h4>${esc(p.name)}</h4>
+      <p>${esc(p.district)} · ${esc(p.address)}</p>
+      ${p.phone ? `<a href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}`;
+    const close = el.querySelector("[data-clear-point]");
+    if (close) close.addEventListener("click", () => {
+      mapState.selected = null;
+      renderMap();
+    });
+  }
+
   function renderPointList() {
     const list = filteredPoints();
     if (mapListCount) mapListCount.textContent = `共 ${list.length} 个点位`;
@@ -865,6 +908,16 @@
           ${p.phone ? `<a class="map-point-phone" href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}
         </article>`;
     }).join("") + (list.length > 50 ? `<p class="map-list-more">还有 ${list.length - 50} 个点位，缩小到具体区可查看更多。</p>` : "");
+    mapListEl.querySelectorAll(".map-point").forEach((el, i) => {
+      el.addEventListener("click", () => {
+        const p = list[i];
+        if (!p) return;
+        mapState.selected = p;
+        mapState.district = p.district;
+        mapState.focus = [p.lon, p.lat];
+        renderMap();
+      });
+    });
   }
 
   function renderDistrictList() {
@@ -885,6 +938,7 @@
   }
 
   function renderMap() {
+    updatePointCopy();
     const desc = document.getElementById("mapDesc");
     if (desc) desc.textContent = "全市 16 区按所选指标着色，中心城区叠加点位；地图下方分两行：设施类型 / 区域。";
     const scope = document.getElementById("mapScope");
@@ -892,10 +946,11 @@
 
     buildMapFilters();
     renderMapDistrict();
+    renderSelection();
     if (mapState.type === "卫生床位") renderDistrictList();
     else renderPointList();
     const note = document.querySelector(".map-note");
-    if (note) note.textContent = "颜色=区级设施密度；点=中心城区点位；坐标近似，距离仅作参考。";
+    if (note) note.textContent = "颜色=区级设施密度；点=全市点位（区级/街道级近似）；距离仅作参考。";
 
     if (!mapChart) return;
     const metricKey = mapState.type === "助餐点" ? "mealPer10k"
@@ -960,8 +1015,10 @@
     mapChart = window.echarts.init(mapEl, null, { renderer: "canvas" });
     mapChart.on("click", (params) => {
       if (params.componentType === "series" && params.data && params.data.point) {
-        mapState.district = params.data.point.district;
-        mapState.focus = centerOf(mapState.district);
+        const p = params.data.point;
+        mapState.selected = p;
+        mapState.district = p.district;
+        mapState.focus = [p.lon, p.lat];
         renderMap();
         return;
       }
