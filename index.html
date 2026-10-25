@@ -149,14 +149,17 @@
             <h2>先看附近有什么</h2>
           </div>
           <div class="section-meta">
-            <p class="section-desc">中心城区试点：和平、河西、南开、河东、河北。定位后按距离排序；点位为区级/街道级近似，不显示门牌级精度。</p>
+            <p class="section-desc" id="mapDesc">中心城区试点：和平、河西、南开、河东、河北。定位后按距离排序；点位为区级/街道级近似，不显示门牌级精度。</p>
             <p class="page-scope" id="mapScope">试点范围：5 区 · 点位加载中</p>
           </div>
         </div>
 
         <div class="map-shell">
           <div class="map-toolbar">
-            <div class="chips" id="pointTypeFilters"></div>
+            <div class="map-filter-group">
+              <div class="chips" id="mapScopeFilters"></div>
+              <div class="chips" id="pointTypeFilters"></div>
+            </div>
             <div class="map-tools">
               <button class="map-btn" id="locateBtn" type="button">定位我</button>
               <span class="locate-status" id="locateStatus">未定位，按区浏览</span>
@@ -405,6 +408,6 @@
   <script src="data/app_data.js?v=10"></script>
   <script src="data/tianjin_geo.js?v=10"></script>
   <script src="vendor/echarts.min.js"></script>
-  <script src="js/app.js?v=11"></script>
+  <script src="js/app.js?v=12"></script>
 </body>
 </html>
