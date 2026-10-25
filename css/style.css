@@ -2394,3 +2394,63 @@ body.modal-open {
 .purpose-note strong {
   color: var(--ink);
 }
+
+/* ---------- Leaflet 真实底图 ---------- */
+.leaflet-container {
+  font-family: var(--sans);
+  background: #eaf3f8;
+}
+
+.leaflet-control-attribution {
+  font-size: 8px !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+}
+
+.leaflet-district-label {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #4f6a7b !important;
+  font-size: 9px !important;
+  font-weight: 600;
+  text-shadow: 0 1px 2px #fff, 0 0 4px #fff;
+}
+
+.leaflet-district-label::before {
+  display: none;
+}
+
+.leaflet-bubble-label {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font-size: 9px !important;
+  font-weight: 700;
+}
+
+.leaflet-street-label {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font-size: 8px !important;
+  font-weight: 700;
+}
+
+.leaflet-street-label::before {
+  display: none;
+}
+
+.leaflet-bubble-label::before {
+  display: none;
+}
+
+.leaflet-point-tip {
+  border: 1px solid var(--line) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--shadow-sm) !important;
+  color: var(--ink) !important;
+  font-size: 10px !important;
+  line-height: 1.5;
+}
