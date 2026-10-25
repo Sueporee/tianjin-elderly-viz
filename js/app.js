@@ -855,7 +855,7 @@
 
   function renderMap() {
     const desc = document.getElementById("mapDesc");
-    if (desc) desc.textContent = "全市 16 区按所选指标着色，中心城区叠加点位；地图下方只留一行分类。";
+    if (desc) desc.textContent = "全市 16 区按所选指标着色，中心城区叠加点位；地图下方分两行：设施类型 / 区域。";
     const scope = document.getElementById("mapScope");
     if (scope) scope.textContent = `全市 16 区底色 + 中心城区 ${POINT_SUMMARY.total || 0} 个点位（街道/区级近似）`;
 
