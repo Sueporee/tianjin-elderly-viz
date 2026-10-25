@@ -709,7 +709,7 @@
     setText("insightIndexText", `${bestD.name}最高，${worstD.name}最低（${worstD.index.toFixed(1)}）；拖动推演权重，排名会变化。`);
   }
 
-  /* ---------------- B 统一地图 ---------------- */
+  /* ---------------- B 真实底图 ---------------- */
   const POINTS = DATA.points || [];
   const POINT_SUMMARY = DATA.pointSummary || {};
   const mapState = { type: "全部", district: "全部", location: null, focus: null, selected: null };
@@ -721,7 +721,10 @@
   const locateBtn = document.getElementById("locateBtn");
   const locateStatus = document.getElementById("locateStatus");
   const typeFilterEl = document.getElementById("pointTypeFilters");
-  let mapChart = null;
+  let map = null;
+  let districtLayer = null;
+  let markerLayer = null;
+  let bubbleLayer = null;
 
   function updatePointCopy() {
     const ds = (POINT_SUMMARY.coveredDistricts || []).length;
@@ -749,7 +752,9 @@
   }
 
   function pointDistance(p) {
-    return mapState.location ? haversine(mapState.location, [p.lat, p.lon]) : null;
+    if (!mapState.location) return null;
+    const lat = p.geoLevel === "street" ? p.lat : p.lat;
+    return haversine(mapState.location, [lat, p.lon]);
   }
 
   function filteredPoints() {
@@ -763,13 +768,52 @@
     });
   }
 
+  // Photon/浏览器定位是 WGS84，高德底图是 GCJ-02；街道点做一次转换。
+  function wgs84ToGcj02(lat, lon) {
+    const a = 6378245.0, ee = 0.00669342162296594323;
+    const outOfChina = lon < 72.004 || lon > 137.8347 || lat < 0.8293 || lat > 55.8271;
+    if (outOfChina) return [lat, lon];
+    const transformLat = (x, y) => {
+      let r = -100 + 2 * x + 3 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
+      r += (20 * Math.sin(6 * x * Math.PI) + 20 * Math.sin(2 * x * Math.PI)) * 2 / 3;
+      r += (20 * Math.sin(y * Math.PI) + 40 * Math.sin(y / 3 * Math.PI)) * 2 / 3;
+      r += (160 * Math.sin(y / 12 * Math.PI) + 320 * Math.sin(y * Math.PI / 30)) * 2 / 3;
+      return r;
+    };
+    const transformLon = (x, y) => {
+      let r = 300 + x + 2 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x));
+      r += (20 * Math.sin(6 * x * Math.PI) + 20 * Math.sin(2 * x * Math.PI)) * 2 / 3;
+      r += (20 * Math.sin(x * Math.PI) + 40 * Math.sin(x / 3 * Math.PI)) * 2 / 3;
+      r += (150 * Math.sin(x / 12 * Math.PI) + 300 * Math.sin(x / 30 * Math.PI)) * 2 / 3;
+      return r;
+    };
+    const dLat = transformLat(lon - 105, lat - 35);
+    const dLon = transformLon(lon - 105, lat - 35);
+    const radLat = lat / 180 * Math.PI;
+    const magic = Math.sin(radLat);
+    const magic2 = 1 - ee * magic * magic;
+    const sqrtMagic = Math.sqrt(magic2);
+    const dLat2 = (dLat * 180) / ((a * (1 - ee)) / (magic2 * sqrtMagic) * Math.PI);
+    const dLon2 = (dLon * 180) / (a / sqrtMagic * Math.cos(radLat) * Math.PI);
+    return [lat + dLat2, lon + dLon2];
+  }
+
+  function pointLatLng(p) {
+    return p.geoLevel === "street" ? wgs84ToGcj02(p.lat, p.lon) : [p.lat, p.lon];
+  }
+
+  function centerOf(name) {
+    const f = (window.TJ_GEO?.features || []).find((x) => x.properties?.name === name);
+    if (!f) return null;
+    const c = f.properties?.center || f.properties?.centroid;
+    return c ? [c[1], c[0]] : null;
+  }
+
   function pointInRing(lon, lat, ring) {
     let inside = false;
     for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-      const xi = ring[i][0], yi = ring[i][1];
-      const xj = ring[j][0], yj = ring[j][1];
-      const intersect = ((yi > lat) !== (yj > lat)) && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi);
-      if (intersect) inside = !inside;
+      const xi = ring[i][0], yi = ring[i][1], xj = ring[j][0], yj = ring[j][1];
+      if (((yi > lat) !== (yj > lat)) && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi)) inside = !inside;
     }
     return inside;
   }
@@ -779,26 +823,22 @@
       if (!f.geometry) continue;
       const polys = f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates;
       for (const poly of polys) {
-        if (!poly || !poly[0]) continue;
-        if (pointInRing(lon, lat, poly[0]) && !poly.slice(1).some((hole) => pointInRing(lon, lat, hole))) {
-          return f;
-        }
+        if (poly?.[0] && pointInRing(lon, lat, poly[0])) return f;
       }
     }
     return null;
   }
 
-  function centerOf(name) {
-    const f = (window.TJ_GEO?.features || []).find((x) => x.properties?.name === name);
-    return f && (f.properties.center || f.properties.centroid) ? (f.properties.center || f.properties.centroid) : null;
+  function districtCount(name, type) {
+    if (type === "卫生床位") {
+      const d = DISTRICTS.find((x) => x.name === name);
+      return d ? d.beds : 0;
+    }
+    return POINTS.filter((p) => p.district === name && (type === "全部" || p.type === type)).length;
   }
 
   function buildMapFilters() {
-    const counts = {
-      "全部": POINT_SUMMARY.total || 0,
-      "助餐点": POINT_SUMMARY.meal || 0,
-      "日间照料": POINT_SUMMARY.daycare || 0,
-    };
+    const counts = { "全部": POINT_SUMMARY.total || 0, "助餐点": POINT_SUMMARY.meal || 0, "日间照料": POINT_SUMMARY.daycare || 0 };
     const types = ["全部", "助餐点", "日间照料", "卫生床位"];
     typeFilterEl.innerHTML = types.map((t) =>
       `<button class="chip ${t === mapState.type ? "active" : ""}" type="button" data-type="${t}">${t}${counts[t] ? ` (${counts[t]})` : ""}</button>`
@@ -830,7 +870,6 @@
         mapState.district = btn.dataset.district;
         mapState.selected = null;
         mapState.focus = mapState.district === "全部" ? null : centerOf(mapState.district);
-        buildMapFilters();
         renderMap();
       });
     });
@@ -839,25 +878,16 @@
   function renderMapDistrict() {
     if (!mapDistrictCard) return;
     if (mapState.district === "全部") {
-      mapDistrictCard.innerHTML = `
-        <p class="map-card-label">A · 区级背景</p>
-        <h3>点地图上的区，看它的资源账本</h3>
-        <p>选中区后，这里会显示老龄化、综合便利指数、供需缺口和优先补的设施类型。</p>`;
+      mapDistrictCard.innerHTML = `<p class="map-card-label">A · 区级背景</p><h3>点地图上的区，看它的资源账本</h3><p>选中区后，这里会显示老龄化、综合指数、供需缺口和优先补的设施类型。</p>`;
       return;
     }
     const d = DISTRICTS.find((x) => x.name === mapState.district);
     if (!d) return;
-    mapDistrictCard.innerHTML = `
-      <p class="map-card-label">A · 区级背景</p>
-      <div class="map-card-head">
-        <h3>${esc(d.name)}</h3>
-        <span>${d.aging.toFixed(1)}% 老龄化</span>
-      </div>
-      <div class="map-card-metrics">
-        <div><b>${d.index.toFixed(1)}</b><span>综合指数</span></div>
-        <div><b class="${d.gap > 0 ? "is-gap" : ""}">${d.gap > 0 ? "+" : ""}${d.gap.toFixed(1)}</b><span>供需缺口</span></div>
-        <div><b>${esc(d.weakest)}</b><span>优先补</span></div>
-      </div>
+    mapDistrictCard.innerHTML = `<p class="map-card-label">A · 区级背景</p>
+      <div class="map-card-head"><h3>${esc(d.name)}</h3><span>${d.aging.toFixed(1)}% 老龄化</span></div>
+      <div class="map-card-metrics"><div><b>${d.index.toFixed(1)}</b><span>综合指数</span></div>
+      <div><b class="${d.gap > 0 ? "is-gap" : ""}">${d.gap > 0 ? "+" : ""}${d.gap.toFixed(1)}</b><span>供需缺口</span></div>
+      <div><b>${esc(d.weakest)}</b><span>优先补</span></div></div>
       <a class="map-card-link" href="#/checkup">去 A 看这个区的图表 →</a>`;
   }
 
@@ -865,25 +895,13 @@
     const el = document.getElementById("mapSelection");
     if (!el) return;
     const p = mapState.selected;
-    if (!p) {
-      el.className = "map-selection";
-      el.innerHTML = "";
-      return;
-    }
+    if (!p) { el.className = "map-selection"; el.innerHTML = ""; return; }
     el.className = "map-selection open";
-    el.innerHTML = `
-      <div class="map-selection-top">
-        <span>已选中点位 · ${p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料 ${p.quality}` : ""}</span>
-        <button class="map-selection-close" type="button" data-clear-point aria-label="关闭">×</button>
-      </div>
-      <h4>${esc(p.name)}</h4>
-      <p>${esc(p.district)} · ${esc(p.address)}</p>
+    el.innerHTML = `<div class="map-selection-top"><span>已选中点位 · ${p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料 ${p.quality}` : ""}</span><button class="map-selection-close" type="button" data-clear-point aria-label="关闭">×</button></div>
+      <h4>${esc(p.name)}</h4><p>${esc(p.district)} · ${esc(p.address)}</p>
       ${p.phone ? `<a href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}`;
     const close = el.querySelector("[data-clear-point]");
-    if (close) close.addEventListener("click", () => {
-      mapState.selected = null;
-      renderMap();
-    });
+    if (close) close.addEventListener("click", () => { mapState.selected = null; renderMap(); });
   }
 
   function renderPointList() {
@@ -891,276 +909,159 @@
     if (mapListCount) mapListCount.textContent = `共 ${list.length} 个点位`;
     if (mapListSort) mapListSort.textContent = mapState.location ? "按离我距离排序" : "按区 / 名称";
     if (!mapListEl) return;
-    if (!list.length) {
-      mapListEl.innerHTML = `<div class="map-empty">这个分类下没有点位。</div>`;
-      return;
-    }
+    if (!list.length) { mapListEl.innerHTML = `<div class="map-empty">这个分类下没有点位。</div>`; return; }
     mapListEl.innerHTML = list.slice(0, 50).map((p) => {
       const dist = pointDistance(p);
       const geo = `${p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料${p.quality}` : ""}`;
-      return `
-        <article class="map-point">
-          <div class="map-point-top">
-            <span class="map-point-type ${p.type === "助餐点" ? "is-meal" : "is-day"}">${p.type}</span>
-            <span class="map-point-geo">${geo}</span>
-            ${dist !== null ? `<span class="map-point-dist">${dist.toFixed(1)} km</span>` : ""}
-          </div>
-          <h4>${esc(p.name)}</h4>
-          <p>${esc(p.district)} · ${esc(p.address)}</p>
-          ${p.phone ? `<a class="map-point-phone" href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}
-        </article>`;
+      return `<article class="map-point"><div class="map-point-top"><span class="map-point-type ${p.type === "助餐点" ? "is-meal" : "is-day"}">${p.type}</span><span class="map-point-geo">${geo}</span>${dist !== null ? `<span class="map-point-dist">${dist.toFixed(1)} km</span>` : ""}</div><h4>${esc(p.name)}</h4><p>${esc(p.district)} · ${esc(p.address)}</p>${p.phone ? `<a class="map-point-phone" href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}</article>`;
     }).join("") + (list.length > 50 ? `<p class="map-list-more">还有 ${list.length - 50} 个点位，缩小到具体区可查看更多。</p>` : "");
     mapListEl.querySelectorAll(".map-point").forEach((el, i) => {
       el.addEventListener("click", () => {
-        const p = list[i];
-        if (!p) return;
-        mapState.selected = p;
-        mapState.district = p.district;
-        mapState.focus = p.geoLevel === "street" ? [p.lon, p.lat] : centerOf(p.district);
+        const p = list[i]; if (!p) return;
+        mapState.selected = p; mapState.district = p.district;
+        mapState.focus = p.geoLevel === "street" ? wgs84ToGcj02(p.lat, p.lon) : centerOf(p.district);
         renderMap();
       });
     });
   }
 
-  function renderDistrictList() {
-    const list = [...DISTRICTS].sort((a, b) => b.bedsPer10k - a.bedsPer10k);
-    if (mapListCount) mapListCount.textContent = "16 个区 · 按卫生床位密度";
-    if (mapListSort) mapListSort.textContent = "全市区级图层";
-    if (!mapListEl) return;
-    mapListEl.innerHTML = list.map((d) => `
-      <article class="map-point">
-        <div class="map-point-top">
-          <span class="map-point-type is-day">卫生床位</span>
-          <span class="map-point-geo">区级</span>
-          <span class="map-point-dist">${d.bedsPer10k.toFixed(0)} 张/万老人</span>
-        </div>
-        <h4>${esc(d.name)}</h4>
-        <p>共 ${fmt(d.beds)} 张 · 老龄化 ${d.aging.toFixed(1)}% · 缺口 ${d.gap > 0 ? "+" : ""}${d.gap.toFixed(1)}</p>
-      </article>`).join("");
-  }
-
-  function districtCount(name, type) {
-    if (type === "卫生床位") {
-      const d = DISTRICTS.find((x) => x.name === name);
-      return d ? d.beds : 0;
-    }
-    return POINTS.filter((p) => p.district === name && (type === "全部" || p.type === type)).length;
-  }
-
   function renderAggregateList() {
     const isBeds = mapState.type === "卫生床位";
-    const rows = DISTRICTS.map((d) => {
-      const count = districtCount(d.name, mapState.type);
-      const metric = isBeds ? d.bedsPer10k : (mapState.type === "助餐点" ? d.mealPer10k : mapState.type === "日间照料" ? d.daycarePer10k : d.index);
-      return { d, count, metric };
-    }).sort((a, b) => isBeds ? b.metric - a.metric : b.count - a.count);
+    const rows = DISTRICTS.map((d) => ({ d, count: districtCount(d.name, mapState.type) }))
+      .sort((a, b) => isBeds ? b.d.metric - a.d.metric : b.count - a.count);
     if (mapListCount) mapListCount.textContent = `16 个区 · ${isBeds ? "按床位密度" : "按点位数"}`;
     if (mapListSort) mapListSort.textContent = isBeds ? "区级图层" : "点击区查看点位";
     if (!mapListEl) return;
-    mapListEl.innerHTML = rows.map(({ d, count, metric }) => `
-      <article class="map-point" data-district="${esc(d.name)}">
-        <div class="map-point-top">
-          <span class="map-point-type ${isBeds ? "is-day" : count > 0 ? "is-meal" : "is-day"}">${isBeds ? "卫生床位" : count > 0 ? "有点位" : "暂无点位"}</span>
-          <span class="map-point-geo">区级</span>
-          <span class="map-point-dist">${isBeds ? `${metric.toFixed(0)} 张/万老人` : `${count} 个`}</span>
-        </div>
-        <h4>${esc(d.name)}</h4>
-        <p>老龄化 ${d.aging.toFixed(1)}% · 综合指数 ${d.index.toFixed(1)} · 缺口 ${d.gap > 0 ? "+" : ""}${d.gap.toFixed(1)}</p>
-      </article>`).join("");
+    mapListEl.innerHTML = rows.map(({ d, count }) => `<article class="map-point" data-district="${esc(d.name)}"><div class="map-point-top"><span class="map-point-type ${isBeds ? "is-day" : count > 0 ? "is-meal" : "is-day"}">${isBeds ? "卫生床位" : count > 0 ? "有点位" : "暂无点位"}</span><span class="map-point-geo">区级</span><span class="map-point-dist">${isBeds ? `${d.bedsPer10k.toFixed(0)} 张/万老人` : `${count} 个`}</span></div><h4>${esc(d.name)}</h4><p>老龄化 ${d.aging.toFixed(1)}% · 综合指数 ${d.index.toFixed(1)} · 缺口 ${d.gap > 0 ? "+" : ""}${d.gap.toFixed(1)}</p></article>`).join("");
     mapListEl.querySelectorAll(".map-point[data-district]").forEach((el) => {
       el.addEventListener("click", () => {
-        mapState.district = el.dataset.district;
-        mapState.selected = null;
-        mapState.focus = centerOf(mapState.district);
-        renderMap();
+        mapState.district = el.dataset.district; mapState.selected = null;
+        mapState.focus = centerOf(mapState.district); renderMap();
       });
     });
   }
 
   function renderMap() {
     updatePointCopy();
-    const desc = document.getElementById("mapDesc");
-    if (desc) desc.textContent = "全市 16 区按所选指标着色，中心城区叠加点位；地图下方分两行：设施类型 / 区域。";
-    const scope = document.getElementById("mapScope");
-    if (scope) scope.textContent = `全市 16 区底色 + 中心城区 ${POINT_SUMMARY.total || 0} 个点位（街道/区级近似）`;
-
     buildMapFilters();
     renderMapDistrict();
     renderSelection();
     const showPoints = mapState.district !== "全部" && mapState.type !== "卫生床位";
-    if (!showPoints) renderAggregateList();
-    else renderPointList();
+    if (!showPoints) renderAggregateList(); else renderPointList();
     const note = document.querySelector(".map-note");
-    if (note) note.textContent = showPoints
-      ? "街道级点位单独显示；区级点位合并为一个气泡，不再伪造位置。"
-      : "当前为区级聚合；点击地图气泡或右侧区名，查看该区具体点位。";
+    if (note) {
+      if (showPoints) {
+        const all = filteredPoints();
+        const approx = all.filter((p) => p.geoLevel !== "street").length;
+        note.textContent = approx
+          ? `街道级点位按街道合并显示；另有 ${approx} 个区级近似点位在右侧列表，不在地图上伪造位置。`
+          : "当前为街道级点位；点选可看详情。";
+      } else {
+        note.textContent = "颜色=区级设施密度；点击地图气泡或右侧区名，查看该区具体点位。";
+      }
+    }
+    if (!map) return;
 
-    if (!mapChart) return;
-    const metricKey = mapState.type === "助餐点" ? "mealPer10k"
-      : mapState.type === "日间照料" ? "daycarePer10k"
-        : mapState.type === "卫生床位" ? "bedsPer10k" : "index";
+    const metricKey = mapState.type === "助餐点" ? "mealPer10k" : mapState.type === "日间照料" ? "daycarePer10k" : mapState.type === "卫生床位" ? "bedsPer10k" : "index";
     const vals = DISTRICTS.map((d) => d[metricKey]);
-    const lo = Math.min(...vals);
-    const hi = Math.max(...vals);
-    const regions = DISTRICTS.map((d) => ({
-      name: d.name,
-      itemStyle: {
-        areaColor: mixColor([234, 243, 248], [23, 93, 141], hi === lo ? 0.5 : (d[metricKey] - lo) / (hi - lo)),
-      },
-    }));
-    const showPointMarkers = mapState.district !== "全部" && mapState.type !== "卫生床位";
-    let data = [];
-    if (showPointMarkers) {
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    districtLayer.setStyle((f) => {
+      const d = DISTRICTS.find((x) => x.name === f.properties.name);
+      const t = d && hi !== lo ? (d[metricKey] - lo) / (hi - lo) : 0.5;
+      return { fillColor: mixColor([234, 243, 248], [23, 93, 141], t), fillOpacity: 0.5, color: "#ffffff", weight: 1 };
+    });
+
+    markerLayer.clearLayers();
+    bubbleLayer.clearLayers();
+    if (showPoints) {
       const all = filteredPoints();
       const streetPoints = all.filter((p) => p.geoLevel === "street");
       const approxPoints = all.filter((p) => p.geoLevel !== "street");
-      data = streetPoints.map((p) => ({
-        name: p.name,
-        value: [p.lon, p.lat],
-        point: p,
-        itemStyle: { color: p.type === "助餐点" ? "#b54633" : "#175d8d" },
-      }));
-      if (approxPoints.length) {
-        const c = centerOf(mapState.district) || [117.2, 39.15];
-        data.push({
-          name: `${mapState.district}区级点位`,
-          value: [c[0], c[1], approxPoints.length],
-          cluster: true,
-          count: approxPoints.length,
-          district: mapState.district,
-          itemStyle: { color: "#175d8d", opacity: 0.88, borderColor: "#fff", borderWidth: 1.5 },
-          label: { show: true, formatter: `${approxPoints.length}`, color: "#fff", fontSize: 9 },
-        });
-      }
-    } else {
-      const centers = {};
-      (window.TJ_GEO?.features || []).forEach((f) => {
-        const p = f.properties || {};
-        const c = p.center || p.centroid;
-        if (c) centers[p.name] = c;
+      const groups = {};
+      streetPoints.forEach((p) => {
+        const key = p.street || `${p.lat.toFixed(4)},${p.lon.toFixed(4)}`;
+        if (!groups[key]) groups[key] = { points: [], lat: p.lat, lon: p.lon, type: p.type };
+        groups[key].points.push(p);
       });
-      data = DISTRICTS.map((d) => ({
-        name: d.name,
-        value: [...(centers[d.name] || [117.2, 39.1]), districtCount(d.name, mapState.type)],
-        district: d.name,
-        count: districtCount(d.name, mapState.type),
-        itemStyle: { color: mapState.type === "助餐点" ? "#b54633" : "#175d8d", opacity: 0.88, borderColor: "#fff", borderWidth: 1.5 },
-        label: { show: true, formatter: `${districtCount(d.name, mapState.type)}`, color: "#fff", fontSize: 9 },
-      })).filter((x) => x.count > 0);
+      Object.values(groups).forEach((g) => {
+        const p = g.points[0];
+        const radius = g.points.length > 1 ? Math.max(7, Math.min(14, 5 + Math.sqrt(g.points.length) * 2)) : 5;
+        const m = L.circleMarker(pointLatLng(p), { radius, color: "#fff", weight: 1.2, fillColor: p.type === "助餐点" ? "#b54633" : "#175d8d", fillOpacity: 0.95 }).addTo(markerLayer);
+        const list = g.points.slice(0, 6).map((x) => `<div style="margin:4px 0"><strong>${esc(x.name)}</strong><br>${esc(x.address)}${x.phone ? `<br>${esc(x.phone)}` : ""}</div>`).join("");
+        m.bindPopup(`<div style="max-width:260px;max-height:240px;overflow:auto;font-size:11px"><div style="font-weight:700;margin-bottom:4px">${g.points.length} 个街道级点位</div>${list}${g.points.length > 6 ? "<div>…</div>" : ""}</div>`);
+        if (g.points.length > 1) m.bindTooltip(`${g.points.length}`, { permanent: true, direction: "center", className: "leaflet-street-label" });
+        m.on("click", () => {
+          mapState.selected = p; mapState.district = p.district;
+          mapState.focus = wgs84ToGcj02(p.lat, p.lon);
+          renderMap();
+        });
+      });
+      if (approxPoints.length && streetPoints.length === 0) {
+        const c = centerOf(mapState.district);
+        if (c) {
+          const b = L.circleMarker(c, { radius: Math.max(18, Math.min(40, 14 + Math.sqrt(approxPoints.length) * 2.2)), color: "#fff", weight: 1.5, fillColor: "#175d8d", fillOpacity: 0.88 }).addTo(bubbleLayer);
+          b.bindTooltip(`${approxPoints.length} 个区级点位`, { permanent: true, direction: "center", className: "leaflet-bubble-label" });
+        }
+      }
+      const center = centerOf(mapState.district);
+      if (center) map.setView(center, Math.max(map.getZoom(), 13));
+    } else {
+      DISTRICTS.forEach((d) => {
+        const c = centerOf(d.name);
+        const count = districtCount(d.name, mapState.type);
+        if (!c || count <= 0) return;
+        const b = L.circleMarker(c, { radius: Math.max(14, Math.min(38, 12 + Math.sqrt(count) * 1.5)), color: "#fff", weight: 1.3, fillColor: mapState.type === "助餐点" ? "#b54633" : "#175d8d", fillOpacity: 0.88 }).addTo(bubbleLayer);
+        b.bindTooltip(`${count}`, { permanent: true, direction: "center", className: "leaflet-bubble-label" });
+        b.on("click", () => { mapState.district = d.name; mapState.focus = c; renderMap(); });
+      });
+      map.fitBounds(districtLayer.getBounds(), { padding: [18, 18] });
     }
-
-    mapChart.setOption({
-      tooltip: {
-        ...tooltipBase,
-        trigger: "item",
-        formatter(p) {
-          if (!p.data) return p.name || "";
-          if (p.data.cluster) {
-            return `<div style="font-weight:600;margin-bottom:4px">${esc(p.data.district)} · 区级点位</div>`
-              + row("点位数", `${p.data.count} 个`, "#175d8d")
-              + row("位置", "区级近似，未伪造门牌坐标");
-          }
-          if (p.data.district && !p.data.point) {
-            return `<div style="font-weight:600;margin-bottom:4px">${esc(p.data.district)}</div>`
-              + row("点位数", `${p.data.count} 个`, "#175d8d")
-              + row("操作", "点击查看该区点位", "#5f7182");
-          }
-          if (!p.data.point) return p.name || "";
-          const d = p.data.point;
-          const dist = pointDistance(d);
-          return `<div style="font-weight:600;margin-bottom:4px">${esc(d.name)}</div>`
-            + row("类型", d.type, d.type === "助餐点" ? "#b54633" : "#175d8d")
-            + row("地址", d.address)
-            + row("位置精度", d.geoLevel === "street" ? "街道级近似" : "区级近似")
-            + (dist !== null ? row("离我", `${dist.toFixed(1)} km`, "#b54633") : "");
-        },
-      },
-      geo: {
-        map: "tianjin",
-        roam: true,
-        zoom: mapState.focus ? 2.2 : 1.12,
-        center: mapState.focus || [117.2, 39.15],
-        itemStyle: { areaColor: "#eaf3f8", borderColor: "#c3d8e5", borderWidth: 1 },
-        emphasis: { itemStyle: { areaColor: "#d7e8f2" }, label: { color: "#102338" } },
-        regions,
-        label: { show: true, color: "#6f8798", fontSize: 9 },
-      },
-      series: [{
-        name: "养老点位",
-        type: "scatter",
-        coordinateSystem: "geo",
-        data,
-        symbolSize: (val) => showPointMarkers
-          ? (val[2] ? Math.max(18, Math.min(40, 14 + Math.sqrt(val[2]) * 2.2)) : 5.5)
-          : Math.max(16, Math.min(38, 13 + Math.sqrt(val[2] || 1) * 1.7)),
-        itemStyle: { borderColor: "#ffffff", borderWidth: 1, opacity: 0.88 },
-        emphasis: { scale: 1.8, itemStyle: { borderColor: "#102338", borderWidth: 1.5 } },
-      }],
-    }, true);
-    mapChart.resize();
   }
 
-  if (mapEl && window.echarts && window.TJ_GEO) {
-    window.echarts.registerMap("tianjin", window.TJ_GEO);
-    mapChart = window.echarts.init(mapEl, null, { renderer: "canvas" });
-    mapChart.on("click", (params) => {
-      if (params.componentType === "series" && params.data && params.data.district && !params.data.point) {
-        mapState.district = params.data.district;
-        mapState.selected = null;
-        mapState.focus = centerOf(mapState.district);
-        renderMap();
-        return;
-      }
-      if (params.componentType === "series" && params.data && params.data.point) {
-        const p = params.data.point;
-        mapState.selected = p;
-        mapState.district = p.district;
-        mapState.focus = p.geoLevel === "street" ? [p.lon, p.lat] : centerOf(p.district);
-        renderMap();
-        return;
-      }
-      const name = params.name;
-      if (name && DISTRICTS.some((x) => x.name === name)) {
-        mapState.district = mapState.district === name ? "全部" : name;
-        mapState.focus = mapState.district === "全部" ? null : centerOf(mapState.district);
-        renderMap();
-      }
-    });
+  if (mapEl && window.L && window.TJ_GEO) {
+    map = L.map(mapEl, { zoomControl: true, attributionControl: true }).setView([39.13, 117.2], 10);
+    L.tileLayer("https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}", {
+      subdomains: ["1", "2", "3", "4"], maxZoom: 18, attribution: "&copy; 高德地图",
+    }).addTo(map);
+    districtLayer = L.geoJSON(window.TJ_GEO, {
+      style: { fillColor: "#eaf3f8", fillOpacity: 0.45, color: "#ffffff", weight: 1 },
+      onEachFeature: (f, layer) => {
+        const name = f.properties?.name;
+        layer.bindTooltip(name, { permanent: true, direction: "center", className: "leaflet-district-label" });
+        layer.on("click", () => { mapState.district = name; mapState.focus = centerOf(name); renderMap(); });
+      },
+    }).addTo(map);
+    markerLayer = L.layerGroup().addTo(map);
+    bubbleLayer = L.layerGroup().addTo(map);
     renderMap();
-    window.addEventListener("resize", () => mapChart.resize(), { passive: true });
-    if (window.ResizeObserver) new ResizeObserver(() => mapChart.resize()).observe(mapEl);
+    window.addEventListener("resize", () => map.invalidateSize(), { passive: true });
+    if (window.ResizeObserver) new ResizeObserver(() => map.invalidateSize()).observe(mapEl);
   } else if (mapEl) {
-    mapEl.innerHTML = `<div class="map-empty" style="height:100%;display:grid;place-items:center">地图数据加载失败，请确认 data/tianjin_geo.js 存在。</div>`;
+    mapEl.innerHTML = `<div class="map-empty" style="height:100%;display:grid;place-items:center">地图库加载失败，请确认 vendor/leaflet/leaflet.js 存在。</div>`;
   }
 
   if (locateBtn) {
     locateBtn.addEventListener("click", () => {
-      if (!navigator.geolocation) {
-        locateStatus.textContent = "浏览器不支持定位";
-        return;
-      }
+      if (!navigator.geolocation) { locateStatus.textContent = "浏览器不支持定位"; return; }
       locateStatus.textContent = "正在定位…";
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const lat = pos.coords.latitude;
-          const lon = pos.coords.longitude;
-          mapState.location = [lat, lon];
-          const f = districtAt(lat, lon);
+          const wgs = [pos.coords.latitude, pos.coords.longitude];
+          const gcj = wgs84ToGcj02(wgs[0], wgs[1]);
+          mapState.location = wgs;
+          const f = districtAt(gcj[0], gcj[1]);
           if (f) {
             const name = f.properties?.name || "";
-            const c = f.properties?.center || f.properties?.centroid;
-            mapState.district = name;
-            mapState.focus = c || null;
-            locateStatus.textContent = `已定位 · ${name} · ${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+            mapState.district = name; mapState.focus = centerOf(name);
+            locateStatus.textContent = `已定位 · ${name} · ${wgs[0].toFixed(3)}, ${wgs[1].toFixed(3)}`;
           } else {
-            mapState.focus = [lon, lat];
-            locateStatus.textContent = `已定位 · ${lat.toFixed(3)}, ${lon.toFixed(3)}（不在天津 16 区范围）`;
+            mapState.focus = gcj;
+            locateStatus.textContent = `已定位 · ${wgs[0].toFixed(3)}, ${wgs[1].toFixed(3)}（不在天津 16 区范围）`;
           }
           renderMap();
+          if (mapState.focus) map.setView(mapState.focus, 13);
         },
-        () => {
-          locateStatus.textContent = "定位失败，可改用区筛选";
-        },
+        () => { locateStatus.textContent = "定位失败，可改用区筛选"; },
         { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
       );
     });
@@ -1260,7 +1161,11 @@
     window.setTimeout(() => {
       if (chart) chart.resize();
       if (labChart) labChart.resize();
-      if (mapChart) mapChart.resize();
+      if (map) {
+        map.invalidateSize();
+        if (mapState.focus) map.setView(mapState.focus, Math.max(map.getZoom(), 13));
+        else if (districtLayer) map.fitBounds(districtLayer.getBounds(), { padding: [18, 18] });
+      }
     }, 60);
   }
   window.addEventListener("hashchange", () => showPage(pageFromHash(), false));
