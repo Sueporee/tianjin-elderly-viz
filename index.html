@@ -37,8 +37,8 @@
       </a>
       <nav class="nav" id="nav">
         <a href="#/home" class="nav-link active" data-page="home">首页</a>
-        <a href="#/map" class="nav-link" data-page="map">附近服务</a>
         <a href="#/checkup" class="nav-link" data-page="checkup">资源体检</a>
+        <a href="#/map" class="nav-link" data-page="map">附近服务</a>
         <a href="#/directory" class="nav-link" data-page="directory">区级账本</a>
         <a href="#/lab" class="nav-link" data-page="lab">补点推演</a>
         <a href="#/conclusion" class="nav-link" data-page="conclusion">结论</a>
@@ -143,11 +143,47 @@
 
     </section>
 
+    <section class="section page" id="visual" data-page="checkup">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-title">
+            <p class="section-index">01 / A · 资源体检</p>
+            <h2>先看总量，再看错配</h2>
+          </div>
+          <div class="section-meta">
+            <p class="section-desc">点击标签切换图表，悬浮看具体数值。人口为 2020 七普，设施为 2025 年公开名单。</p>
+            <p class="page-scope">口径：全市 16 区 · 2020 人口 / 2025 设施</p>
+          </div>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="图表切换">
+          <button class="tab active" data-view="population" role="tab" aria-selected="true">人口</button>
+          <button class="tab" data-view="facilities" role="tab" aria-selected="false">设施</button>
+          <button class="tab" data-view="share" role="tab" aria-selected="false">占比</button>
+          <button class="tab" data-view="match" role="tab" aria-selected="false">匹配</button>
+          <button class="tab" data-view="gap" role="tab" aria-selected="false">缺口</button>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <h3 id="chartTitle">各区老年人口与老龄化率</h3>
+              <p id="chartSub">按老龄化率排序 · 2020 七普</p>
+            </div>
+            <span class="chart-badge" id="chartBadge">16 区</span>
+          </div>
+          <div id="mainChart" class="chart" role="img" aria-label="数据图表"></div>
+          <p class="chart-note" id="chartNote">数据来源：天津市第七次全国人口普查（2020）。</p>
+        </div>
+        <div class="a-actions" id="aActions"></div>
+      </div>
+    </section>
+
     <section class="section map-section page" id="map" data-page="map">
       <div class="container">
         <div class="section-head">
           <div class="section-title">
-            <p class="section-index">01 / B · 附近服务</p>
+            <p class="section-index">02 / B · 附近服务</p>
             <h2>一张地图，先看附近</h2>
           </div>
         </div>
@@ -191,42 +227,6 @@
             </aside>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section class="section page" id="visual" data-page="checkup">
-      <div class="container">
-        <div class="section-head">
-          <div class="section-title">
-            <p class="section-index">02 / A · 资源体检</p>
-            <h2>先看总量，再看错配</h2>
-          </div>
-          <div class="section-meta">
-            <p class="section-desc">点击标签切换图表，悬浮看具体数值。人口为 2020 七普，设施为 2025 年公开名单。</p>
-            <p class="page-scope">口径：全市 16 区 · 2020 人口 / 2025 设施</p>
-          </div>
-        </div>
-
-        <div class="tabs" role="tablist" aria-label="图表切换">
-          <button class="tab active" data-view="population" role="tab" aria-selected="true">人口</button>
-          <button class="tab" data-view="facilities" role="tab" aria-selected="false">设施</button>
-          <button class="tab" data-view="share" role="tab" aria-selected="false">占比</button>
-          <button class="tab" data-view="match" role="tab" aria-selected="false">匹配</button>
-          <button class="tab" data-view="gap" role="tab" aria-selected="false">缺口</button>
-        </div>
-
-        <div class="chart-card">
-          <div class="chart-head">
-            <div>
-              <h3 id="chartTitle">各区老年人口与老龄化率</h3>
-              <p id="chartSub">按老龄化率排序 · 2020 七普</p>
-            </div>
-            <span class="chart-badge" id="chartBadge">16 区</span>
-          </div>
-          <div id="mainChart" class="chart" role="img" aria-label="数据图表"></div>
-          <p class="chart-note" id="chartNote">数据来源：天津市第七次全国人口普查（2020）。</p>
-        </div>
-        <div class="a-actions" id="aActions"></div>
       </div>
     </section>
 
@@ -382,28 +382,28 @@
     <div class="help-dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
       <button class="help-close" type="button" data-help-close aria-label="关闭使用说明">×</button>
       <p class="section-index">使用说明</p>
-      <h2 id="helpTitle">先找服务，再看资源</h2>
-      <p class="help-lead">B 面解决“附近有什么”，A 面解释“为什么这里缺”。两页不混在一起。</p>
+      <h2 id="helpTitle">先看资源，再看服务</h2>
+      <p class="help-lead">A 面解释“为什么这里缺”，B 面解决“附近有什么”。两页不混在一起。</p>
       <div class="home-guide-grid">
         <article>
           <span>01</span>
-          <h3>定位或选区</h3>
-          <p>在“附近服务”里定位，或直接选和平、河西、南开、河东、河北。</p>
+          <h3>看资源体检</h3>
+          <p>先看 16 区老龄化、设施密度和供需缺口，判断哪里最需要补。</p>
         </article>
         <article>
           <span>02</span>
-          <h3>看附近点位</h3>
-          <p>按助餐/日照筛选，查看名称、地址、电话；距离是街道级近似，只作参考。</p>
+          <h3>定位或选区</h3>
+          <p>在“附近服务”里定位，或直接选一个区，查看具体点位。</p>
         </article>
         <article>
           <span>03</span>
-          <h3>回到资源体检</h3>
-          <p>看这个区的老龄化、供给指数和缺口，判断下一步该补哪类设施。</p>
+          <h3>看附近点位</h3>
+          <p>按助餐/日照筛选，查看门址、电话和资料等级；点右侧列表可同步地图。</p>
         </article>
       </div>
       <p class="home-scope-note" id="helpPointNote">
-        <strong>为什么地图只有 750 个点位？</strong>
-        B 目前是中心城区 5 区试点；全市 16 区共有 2,015 个助餐点、1,342 个日照中心，区级总数见“区级账本”。
+        <strong>为什么地图有 3,202 个点位？</strong>
+        B 已收录 16 区民政局名单；绝大多数点位已到门址级，少量仍为区级近似。全市区级总数见“区级账本”。
       </p>
       <div class="help-actions">
         <a class="btn btn-ghost" href="#/checkup" data-help-close>去 A 看资源体检</a>
@@ -416,6 +416,6 @@
   <script src="data/tianjin_geo.js?v=11"></script>
   <script src="vendor/echarts.min.js"></script>
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="js/app.js?v=24"></script>
+  <script src="js/app.js?v=25"></script>
 </body>
 </html>
