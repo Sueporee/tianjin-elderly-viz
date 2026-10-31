@@ -208,7 +208,7 @@
   });
 
   /* 支持从 URL 预填：#/policy?age=80-89&status=dibao&ability=severe */
-  (function prefill() {
+  function prefill() {
     var hash = window.location.hash || "";
     var qi = hash.indexOf("?");
     if (qi < 0) return;
@@ -223,7 +223,10 @@
       }
     });
     render();
-  })();
+  }
+
+  prefill();
+  window.addEventListener("hashchange", prefill);
 
   render();
 })();
