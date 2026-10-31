@@ -15,7 +15,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=25">
+  <link rel="stylesheet" href="css/style.css?v=27">
   <link rel="stylesheet" href="css/print.css?v=1" media="print">
   <script>document.documentElement.className += " js";</script>
 </head>
@@ -42,6 +42,7 @@
         <a href="#/checkup" class="nav-link" data-page="checkup">资源体检</a>
         <a href="#/map" class="nav-link" data-page="map">附近服务</a>
         <a href="#/directory" class="nav-link" data-page="directory">区级账本</a>
+        <a href="#/policy" class="nav-link" data-page="policy">政策自查</a>
         <a href="#/lab" class="nav-link" data-page="lab">补点推演</a>
         <a href="#/conclusion" class="nav-link" data-page="conclusion">结论</a>
       </nav>
@@ -139,6 +140,12 @@
           <strong>找附近服务</strong>
           <p id="homePointText">中心城区试点 · 750 个点位 · 定位后按距离排序</p>
           <span class="home-door-arrow">进入地图 →</span>
+        </a>
+        <a class="home-door home-door-c" href="#/policy">
+          <span class="home-door-tag">C · 政策口径</span>
+          <strong>查能领什么</strong>
+          <p>高龄津贴、困难补贴、长护险 · 三项条件自查</p>
+          <span class="home-door-arrow">进入自查 →</span>
         </a>
       </div>
 
@@ -345,11 +352,68 @@
       </div>
     </section>
 
+    <section class="section page" id="policy" data-page="policy">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <div class="section-title">
+            <p class="section-index">04 / B · 政策自查</p>
+            <h2>先看条件，再看能领什么</h2>
+          </div>
+          <div class="section-meta">
+            <p class="section-desc">选完三个条件，自动列出可能符合的补贴、大致金额和去哪儿办。只收录公开发布、能追溯到原文的官方口径。</p>
+            <p class="page-scope">口径：天津市级文件 + 区级细则示例 · 最终以经办机构认定为准</p>
+          </div>
+        </div>
+
+        <div class="pol-layout" data-reveal>
+          <form class="pol-form" id="policyForm">
+            <fieldset class="pol-q">
+              <legend><span>①</span>老人年龄</legend>
+              <div class="pol-options">
+                <label class="pol-opt"><input type="radio" name="pol-age" value="60-64"><span>60–64 岁</span></label>
+                <label class="pol-opt"><input type="radio" name="pol-age" value="65-79"><span>65–79 岁</span></label>
+                <label class="pol-opt"><input type="radio" name="pol-age" value="80-89"><span>80–89 岁</span></label>
+                <label class="pol-opt"><input type="radio" name="pol-age" value="90-99"><span>90–99 岁</span></label>
+                <label class="pol-opt"><input type="radio" name="pol-age" value="100+"><span>100 岁及以上</span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="pol-q">
+              <legend><span>②</span>身份与家庭情况</legend>
+              <div class="pol-options">
+                <label class="pol-opt"><input type="radio" name="pol-status" value="dibao"><span>最低生活保障对象</span></label>
+                <label class="pol-opt"><input type="radio" name="pol-status" value="edge"><span>低保边缘家庭成员</span></label>
+                <label class="pol-opt"><input type="radio" name="pol-status" value="youfu"><span>优抚对象</span></label>
+                <label class="pol-opt"><input type="radio" name="pol-status" value="none"><span>以上都不是</span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="pol-q">
+              <legend><span>③</span>目前失能情况</legend>
+              <div class="pol-options">
+                <label class="pol-opt"><input type="radio" name="pol-ability" value="self"><span>生活能自理</span></label>
+                <label class="pol-opt"><input type="radio" name="pol-ability" value="mild"><span>轻度依赖</span></label>
+                <label class="pol-opt"><input type="radio" name="pol-ability" value="moderate"><span>中度依赖</span></label>
+                <label class="pol-opt"><input type="radio" name="pol-ability" value="severe"><span>重度失能</span></label>
+              </div>
+            </fieldset>
+
+            <p class="pol-form-note">这里不收集也不上传任何个人信息，选择只留在当前页面。</p>
+          </form>
+
+          <div class="pol-panel">
+            <p class="pol-progress" id="policyProgress">还差 3 项</p>
+            <div id="policyResults"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="section lab page" id="lab" data-page="lab">
       <div class="container">
         <div class="section-head" data-reveal>
           <div class="section-title">
-            <p class="section-index">04 / A · 补点推演</p>
+            <p class="section-index">05 / A · 补点推演</p>
             <h2><span class="balance-line">如果只能先补一类，</span><span class="balance-line">你会怎么选？</span></h2>
           </div>
           <div class="section-meta">
@@ -395,7 +459,7 @@
       <div class="container">
         <div class="section-head" data-reveal>
           <div class="section-title">
-            <p class="section-index">05 / 结论</p>
+            <p class="section-index">06 / 结论</p>
             <h2>从数据里读出的四件事</h2>
           </div>
           <div class="section-meta">
@@ -503,6 +567,11 @@
           <h3>打一张一页纸</h3>
           <p>在“区级账本”点「一页纸 · 打印/存 PDF」，得到单区关键数字、对比表与数据边界，可直接交给社区或写进材料。</p>
         </article>
+        <article>
+          <span>05</span>
+          <h3>查能领什么</h3>
+          <p>在“政策自查”选年龄、身份、失能情况，自动列出高龄津贴、困难补贴、长护险的初步匹配结果与办理地点。</p>
+        </article>
       </div>
       <p class="home-scope-note" id="helpPointNote">
         <strong>为什么地图有 3,202 个点位？</strong>
@@ -524,6 +593,8 @@
   <script src="vendor/echarts.min.js"></script>
   <script src="vendor/leaflet/leaflet.js"></script>
   <script src="js/app.js?v=29"></script>
+  <script src="data/policy_data.js?v=1"></script>
+  <script src="js/policy.js?v=1"></script>
   <script src="js/ui.js?v=5"></script>
 </body>
 </html>
