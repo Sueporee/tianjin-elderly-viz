@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#175d8d">
   <title>海河养老资源 · 天津 16 区</title>
-  <meta name="description" content="天津 16 区养老资源体检：看老年人口、助餐点、日间照料中心与卫生床位，按权重推演补点优先级，并在地图上查找附近点位。">
+  <meta name="description" content="天津 16 区养老供需画像：看老年人口、助餐点、日间照料中心与卫生床位，按权重推演补点优先级，并在地图上查找附近点位。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://sueporee.github.io/tianjin-elderly-viz/">
   <meta property="og:site_name" content="海河养老资源">
@@ -39,10 +39,10 @@
       </a>
       <nav class="nav" id="nav" aria-label="主导航">
         <a href="#/home" class="nav-link active" data-page="home">首页</a>
-        <a href="#/checkup" class="nav-link" data-page="checkup">资源体检</a>
+        <a href="#/checkup" class="nav-link" data-page="checkup">供需画像</a>
         <a href="#/map" class="nav-link" data-page="map">附近服务</a>
-        <a href="#/directory" class="nav-link" data-page="directory">区级账本</a>
-        <a href="#/policy" class="nav-link" data-page="policy">政策自查</a>
+        <a href="#/directory" class="nav-link" data-page="directory">各区养老台账</a>
+        <a href="#/policy" class="nav-link" data-page="policy">福利自查</a>
         <a href="#/lab" class="nav-link" data-page="lab">补点推演</a>
         <a href="#/conclusion" class="nav-link" data-page="conclusion">结论</a>
       </nav>
@@ -67,7 +67,7 @@
           </p>
           <p class="purpose-note"><strong>项目边界：</strong>这不是服务目录。A 帮管理者判断“先补谁”，B 帮居民查看区级与点位线索，C 帮家庭对照补贴条件。</p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="#/checkup">A · 看资源体检 <span aria-hidden="true">→</span></a>
+            <a class="btn btn-primary" href="#/checkup">A · 看供需画像 <span aria-hidden="true">→</span></a>
             <a class="btn btn-ghost" href="#/map">B · 找附近服务 <span aria-hidden="true">→</span></a>
           </div>
           <p class="hero-note" id="heroPointNote">B 为中心城区区级/街道级近似试点；具体点位、营业状态以民政局官方名单为准，不构成服务承诺。</p>
@@ -121,7 +121,7 @@
       <div class="container home-doors">
         <a class="home-door home-door-a" href="#/checkup">
           <span class="home-door-tag">A · 决策视角</span>
-          <strong>看资源体检</strong>
+          <strong>看供需画像</strong>
           <p>全市 16 区 · 老龄化、设施密度、供需缺口</p>
           <span class="home-door-arrow">进入图表 →</span>
         </a>
@@ -225,8 +225,8 @@
       <div class="container">
         <div class="section-head" data-reveal>
           <div class="section-title">
-            <p class="section-index">01 / A · 资源体检</p>
-            <h2>先看总量，再看错配</h2>
+            <p class="section-index">01 / A · 供需画像</p>
+            <h2>各区老龄化水平与养老资源</h2>
           </div>
           <div class="section-meta">
             <p class="section-desc">点击标签切换图表，悬浮看具体数值。人口为 2020 七普，设施为 2025 年公开名单。</p>
@@ -262,7 +262,7 @@
         <div class="section-head" data-reveal>
           <div class="section-title">
             <p class="section-index">02 / B · 附近服务</p>
-            <h2>一张地图，先看附近</h2>
+            <h2>一键定位身边养老服务</h2>
           </div>
           <div class="section-meta">
             <p class="section-desc">颜色表示区级设施密度，点表示全市点位。开放定位后会按距离排序，距离仅作参考。</p>
@@ -316,8 +316,8 @@
       <div class="container">
         <div class="section-head" data-reveal>
           <div class="section-title">
-            <p class="section-index">03 / B · 区级账本</p>
-            <h2>先看区，再看名单</h2>
+            <p class="section-index">03 / B · 各区养老台账</p>
+            <h2>看详细设施名单</h2>
           </div>
           <div class="section-meta">
             <p class="section-desc">居民视角的区级入口：先看每个区有多少助餐、日照和床位，再点进民政局官方名单查具体点位。</p>
@@ -346,8 +346,8 @@
       <div class="container">
         <div class="section-head" data-reveal>
           <div class="section-title">
-            <p class="section-index">04 / B · 政策自查</p>
-            <h2>先看条件，再看能领什么</h2>
+            <p class="section-index">04 / C · 福利自查</p>
+            <h2>满足什么条件，能领什么养老补助</h2>
           </div>
           <div class="section-meta">
             <p class="section-desc">选完三个条件，自动列出可能符合的补贴、大致金额和去哪儿办。只收录公开发布、能追溯到原文的官方口径。</p>
@@ -539,7 +539,7 @@
       <div class="home-guide-grid">
         <article>
           <span>01</span>
-          <h3>看资源体检</h3>
+          <h3>看供需画像</h3>
           <p>先看 16 区老龄化、设施密度和供需缺口，判断哪里最需要补。</p>
         </article>
         <article>
@@ -555,24 +555,24 @@
         <article>
           <span>04</span>
           <h3>打一张一页纸</h3>
-          <p>在“区级账本”点「一页纸 · 打印/存 PDF」，得到单区关键数字、对比表与数据边界，可直接交给社区或写进材料。</p>
+          <p>在“各区养老台账”点「一页纸 · 打印/存 PDF」，得到单区关键数字、对比表与数据边界，可直接交给社区或写进材料。</p>
         </article>
         <article>
           <span>05</span>
           <h3>查能领什么</h3>
-          <p>在“政策自查”选年龄、身份、失能情况，自动列出高龄津贴、困难补贴、长护险的初步匹配结果与办理地点。</p>
+          <p>在“福利自查”选年龄、身份、失能情况，自动列出高龄津贴、困难补贴、长护险的初步匹配结果与办理地点。</p>
         </article>
       </div>
       <p class="home-scope-note" id="helpPointNote">
         <strong>为什么地图有 3,202 个点位？</strong>
-        B 已收录 16 区民政局名单；绝大多数点位已到门址级，少量仍为区级近似。全市区级总数见“区级账本”。
+        B 已收录 16 区民政局名单；绝大多数点位已到门址级，少量仍为区级近似。全市区级总数见“各区养老台账”。
       </p>
       <p class="home-scope-note">
         <strong>资料等级怎么看？</strong>
         A＝有电话且门址可比对；B＝有电话但只有区级坐标；C＝缺电话或地址。所有点位均来自公开名单，<strong>尚未逐条电话核实</strong>，营业状态与价格以电话确认为准。
       </p>
       <div class="help-actions">
-        <a class="btn btn-primary" href="#/checkup" data-help-close>去 A 看资源体检</a>
+        <a class="btn btn-primary" href="#/checkup" data-help-close>去 A 看供需画像</a>
         <a class="btn btn-ghost" href="#/map" data-help-close>去 B 找附近服务</a>
       </div>
     </div>
@@ -582,7 +582,7 @@
   <script src="data/tianjin_geo.js?v=11"></script>
   <script src="vendor/echarts.min.js"></script>
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="js/app.js?v=30"></script>
+  <script src="js/app.js?v=31"></script>
   <script src="data/policy_data.js?v=1"></script>
   <script src="js/policy.js?v=2"></script>
   <script src="js/ui.js?v=5"></script>
