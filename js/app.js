@@ -1269,7 +1269,7 @@
   const PAGES = new Set(["home", "map", "checkup", "directory", "policy", "lab", "conclusion"]);
   const PAGE_ALIASES = { visual: "checkup", facilities: "directory", insights: "conclusion" };
   function pageFromHash() {
-    const h = window.location.hash.replace(/^#\/?/, "");
+    const h = window.location.hash.replace(/^#\/?/, "").split("?")[0];
     if (PAGE_ALIASES[h]) return PAGE_ALIASES[h];
     return PAGES.has(h) ? h : "home";
   }
