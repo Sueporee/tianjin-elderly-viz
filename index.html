@@ -15,7 +15,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=21">
+  <link rel="stylesheet" href="css/style.css?v=25">
+  <link rel="stylesheet" href="css/print.css?v=1" media="print">
   <script>document.documentElement.className += " js";</script>
 </head>
 <body>
@@ -179,6 +180,41 @@
       </div>
 
       <div class="container">
+        <section class="scope" aria-labelledby="scopeTitle" data-reveal>
+          <div class="section-head">
+            <div class="section-title">
+              <p class="section-index">使用边界</p>
+              <h2 id="scopeTitle">这份数据能答什么，答不了什么</h2>
+            </div>
+            <div class="section-meta">
+              <p class="section-desc">公开数据、单人整理，边界比结论更要紧。下面这些写在这里，也应该写进任何引用它的材料。</p>
+            </div>
+          </div>
+          <div class="scope-grid">
+            <div class="scope-col is-yes">
+              <p class="scope-label">能回答</p>
+              <ul>
+                <li>16 个区之间，老龄化程度与设施密度谁紧谁松。</li>
+                <li>哪一类设施在哪个区最缺（按每万人口径比较助餐点、日照中心、卫生床位）。</li>
+                <li>某个区有哪些助餐点与日间照料中心，地址与电话是什么。</li>
+                <li>权重变化后，区级排名对权重有多敏感。</li>
+              </ul>
+            </div>
+            <div class="scope-col is-no">
+              <p class="scope-label">回答不了</p>
+              <ul>
+                <li>你家门口 800 米内今天能不能吃上饭——距离是直线距离，营业状态未核实。</li>
+                <li>某家食堂的价格、口味、是否停业——未逐条电话核实。</li>
+                <li>具体该在哪条街新建一间食堂——还需街道人口、房源、运营成本与补贴口径。</li>
+                <li>未来三年会怎样——人口是 2020 年七普，设施是 2024—2025 年名单快照。</li>
+              </ul>
+            </div>
+          </div>
+          <p class="scope-foot">点位上的「资料 A / B / C」是填报质量分级：A＝有电话且门址可比对；B＝有电话但只有区级坐标；C＝缺电话或地址。全部点位来自民政部门公开名单，尚未逐条人工核实。</p>
+        </section>
+      </div>
+
+      <div class="container">
         <section class="tagline" aria-label="项目主张">
           <p class="tagline-text" id="taglineText">
             <span class="tagline-line">资源够不够，不看总量，</span>
@@ -252,7 +288,7 @@
           <div class="map-grid">
             <div class="map-canvas-wrap">
               <div id="tjMap" class="map-canvas" role="img" aria-label="天津养老服务地图"></div>
-              <p class="map-note">颜色=区级设施密度；点=全市点位（区级/街道级近似）；距离仅作参考。</p>
+              <p class="map-note">颜色＝区级设施密度；点＝全市点位。资料分级：A 有电话且门址可比对，B 有电话但只有区级坐标，C 缺电话或地址；距离为直线距离，仅作参考，未逐条电话核实。</p>
               <div class="map-categories">
                 <div class="map-cat-row">
                   <span class="map-cat-label">设施类型</span>
@@ -437,6 +473,8 @@
     <span>使用说明</span>
   </button>
 
+  <section class="print-sheet" id="printSheet" aria-hidden="true"></section>
+
   <div class="help-modal" id="helpModal" aria-hidden="true">
     <div class="help-backdrop" data-help-close></div>
     <div class="help-dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
@@ -460,10 +498,19 @@
           <h3>看附近点位</h3>
           <p>按助餐、日照筛选，查看门址、电话和资料等级；点右侧列表可同步地图。</p>
         </article>
+        <article>
+          <span>04</span>
+          <h3>打一张一页纸</h3>
+          <p>在“区级账本”点「一页纸 · 打印/存 PDF」，得到单区关键数字、对比表与数据边界，可直接交给社区或写进材料。</p>
+        </article>
       </div>
       <p class="home-scope-note" id="helpPointNote">
         <strong>为什么地图有 3,202 个点位？</strong>
         B 已收录 16 区民政局名单；绝大多数点位已到门址级，少量仍为区级近似。全市区级总数见“区级账本”。
+      </p>
+      <p class="home-scope-note">
+        <strong>资料等级怎么看？</strong>
+        A＝有电话且门址可比对；B＝有电话但只有区级坐标；C＝缺电话或地址。所有点位均来自公开名单，<strong>尚未逐条电话核实</strong>，营业状态与价格以电话确认为准。
       </p>
       <div class="help-actions">
         <a class="btn btn-primary" href="#/map" data-help-close>去 B 找附近服务</a>
@@ -476,7 +523,7 @@
   <script src="data/tianjin_geo.js?v=11"></script>
   <script src="vendor/echarts.min.js"></script>
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="js/app.js?v=28"></script>
-  <script src="js/ui.js?v=3"></script>
+  <script src="js/app.js?v=29"></script>
+  <script src="js/ui.js?v=5"></script>
 </body>
 </html>
