@@ -751,7 +751,7 @@
     const note = document.getElementById("heroPointNote");
     if (note) note.textContent = `B 已收录 ${ds} 区 ${total} 个点位；中心城区为街道级近似，其他区为区级近似；具体服务以民政局名单为准。`;
     const help = document.getElementById("helpPointNote");
-    if (help) help.innerHTML = `<strong>为什么地图有 ${total} 个点位？</strong>B 已收录 ${ds} 区民政局名单；中心城区较细，其他区为区级近似。全市区级总数仍以“区级账本”为准。`;
+    if (help) help.innerHTML = `<strong>为什么地图有 ${total} 个点位？</strong>B 已收录 ${ds} 区民政局名单；中心城区较细，其他区为区级近似。全市区级总数仍以“各区养老台账”为准。`;
   }
 
   function esc(s) {
