@@ -133,17 +133,18 @@ svg {
   width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
   padding: 8px 8px 8px 16px;
-  border: 1px solid rgba(20, 24, 28, 0.08);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.76);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(10px) saturate(115%);
+  backdrop-filter: blur(10px) saturate(115%);
   transition: background 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 
 .site-header.is-scrolled .nav-shell {
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 8px 24px rgba(20, 24, 28, 0.08);
+  background: rgba(255, 255, 255, 0.97);
+  border-color: var(--line-strong);
+  box-shadow: 0 4px 14px rgba(20, 24, 28, 0.06);
 }
 
 .brand {
@@ -331,9 +332,8 @@ svg {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--blue);
+  color: var(--ink-2);
   font-weight: 600;
-  letter-spacing: 0.06em;
 }
 
 .eyebrow-loc i {
@@ -349,16 +349,14 @@ svg {
 }
 
 .eyebrow-mode {
-  padding: 2px 8px;
-  border-radius: 100px;
-  background: var(--blue-soft);
-  color: var(--blue);
-  font-weight: 600;
+  padding-left: 8px;
+  border-left: 1px solid var(--line-strong);
+  color: var(--ink-2);
+  font-weight: 500;
 }
 
 .eyebrow-mode.is-a {
-  background: var(--red-soft);
-  color: var(--red);
+  color: var(--muted);
 }
 
 .hero h1 {
@@ -370,7 +368,7 @@ svg {
   font-weight: 600;
   letter-spacing: 0.01em;
   text-wrap: balance;
-  background: linear-gradient(90deg, #14181c 0%, #6b747c 100%);
+  background: linear-gradient(90deg, #14181c 0%, #4c555c 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -462,17 +460,16 @@ svg {
 .brief {
   padding: 24px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--surface);
 }
 
 .brief-label {
   margin: 0 0 8px;
-  color: var(--blue);
+  color: var(--muted);
   font-size: 12px;
   line-height: 16px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-weight: 500;
 }
 
 .brief-item {
@@ -525,15 +522,15 @@ svg {
 }
 
 .figure {
-  padding: 24px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: var(--surface);
+  padding: 16px 0 0;
+  border-top: 1px solid var(--line);
+  background: none;
 }
 
 .figure strong {
   display: block;
   color: var(--ink);
+  font-family: var(--serif);
   font-size: 36px;
   line-height: 40px;
   font-weight: 600;
@@ -562,24 +559,21 @@ svg {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 32px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: var(--surface);
-  transition: transform 0.5s var(--ease), border-color 0.3s var(--ease);
+  padding: 20px 0 0;
+  border-top: 1px solid var(--line);
+  background: none;
+  transition: border-color 0.3s var(--ease);
 }
 
 .home-door:hover {
-  transform: translateY(-2px);
-  border-color: var(--line-strong);
+  border-color: var(--ink-2);
 }
 
 .home-door-tag {
   color: var(--muted);
   font-size: 12px;
   line-height: 16px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-weight: 500;
 }
 
 .home-door strong {
@@ -623,18 +617,16 @@ svg {
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding: 24px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: var(--surface);
+  padding: 20px 0 0;
+  border-top: 1px solid var(--line);
+  background: none;
   color: inherit;
   text-decoration: none;
-  transition: transform 0.3s var(--ease), border-color 0.3s var(--ease);
+  transition: border-color 0.3s var(--ease);
 }
 
 .focus-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--line-strong);
+  border-color: var(--ink-2);
 }
 
 .focus-label {
@@ -642,8 +634,7 @@ svg {
   color: var(--muted);
   font-size: 12px;
   line-height: 16px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-weight: 500;
 }
 
 .focus-value {
@@ -710,11 +701,9 @@ svg {
 }
 
 .scope-col {
-  padding: 24px;
-  border: 1px solid var(--line);
-  border-top-width: 2px;
-  border-radius: 16px;
-  background: var(--surface);
+  padding: 20px 0 0;
+  border-top: 2px solid var(--line);
+  background: none;
 }
 
 .scope-col.is-yes {
@@ -730,8 +719,7 @@ svg {
   color: var(--muted);
   font-size: 12px;
   line-height: 16px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-weight: 500;
 }
 
 .scope-col.is-yes .scope-label {
@@ -860,12 +848,23 @@ svg {
 }
 
 .section-index {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0 0 12px;
-  color: var(--blue);
+  color: var(--muted);
   font-size: 12px;
   line-height: 16px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.section-index::before {
+  content: "";
+  flex: none;
+  width: 24px;
+  height: 1px;
+  background: var(--line-strong);
 }
 
 .section-title h2 {
@@ -931,7 +930,7 @@ svg {
 .chart-card {
   padding: 24px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--surface);
 }
 
@@ -1025,7 +1024,7 @@ svg {
 .a-action-card {
   padding: 24px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--surface);
 }
 
@@ -1089,7 +1088,7 @@ svg {
 .map-shell {
   padding: 16px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--surface);
 }
 
@@ -1559,7 +1558,7 @@ svg {
 .filter-card {
   padding: 24px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--surface);
 }
 
@@ -1627,7 +1626,7 @@ svg {
   flex-direction: column;
   padding: 24px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--surface);
   transition: transform 0.5s var(--ease), border-color 0.3s var(--ease);
 }
@@ -1662,14 +1661,13 @@ svg {
 .district-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 16px;
   margin: 16px 0;
 }
 
 .district-metric {
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--bg);
+  padding: 10px 0 0;
+  border-top: 1px solid var(--line);
 }
 
 .district-metric strong {
@@ -1743,7 +1741,7 @@ svg {
   grid-column: 1 / -1;
   padding: 48px 24px;
   border: 1px dashed var(--line-strong);
-  border-radius: 16px;
+  border-radius: 12px;
   color: var(--muted);
   text-align: center;
   font-size: 14px;
@@ -1786,7 +1784,7 @@ svg {
 .lab-controls {
   padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 16px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
 }
 
@@ -1866,7 +1864,7 @@ svg {
 
 .lab-chart-wrap {
   padding: 16px;
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--surface);
   color: var(--ink);
 }
@@ -1896,23 +1894,22 @@ svg {
 .insight-card {
   display: flex;
   flex-direction: column;
-  padding: 24px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: var(--surface);
+  padding: 20px 0 0;
+  border-top: 1px solid var(--line);
+  background: none;
 }
 
 .insight-label {
   color: var(--muted);
   font-size: 12px;
   line-height: 16px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-weight: 500;
 }
 
 .insight-value {
   margin-top: 8px;
   color: var(--ink);
+  font-family: var(--serif);
   font-size: 36px;
   line-height: 40px;
   font-weight: 600;
@@ -1941,7 +1938,7 @@ svg {
   gap: 48px;
   margin-top: 24px;
   padding: 40px;
-  border-radius: 24px;
+  border-radius: 16px;
   background: var(--dark);
   color: #f2f2ee;
 }
@@ -2150,7 +2147,7 @@ svg {
   max-height: 88vh;
   overflow: auto;
   padding: 40px;
-  border-radius: 24px;
+  border-radius: 16px;
   background: var(--surface);
   animation: dialog-in 0.5s var(--ease) both;
 }
@@ -2736,7 +2733,7 @@ body.nav-open {
   gap: 24px;
   padding: 24px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--surface);
   position: sticky;
   top: 88px;
@@ -2821,25 +2818,26 @@ body.nav-open {
 
 .pol-empty {
   margin: 0;
-  padding: 32px 24px;
-  border: 1px dashed var(--line-strong);
-  border-radius: 16px;
+  padding: 20px 0 24px;
+  border-top: 1px solid var(--line);
   font-size: 14px;
   line-height: 22px;
   color: var(--muted);
-  text-align: center;
 }
 
 .pol-cards { display: grid; gap: 16px; }
 
 .pol-card {
   padding: 20px 24px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
+  border: 0;
+  border-left: 2px solid var(--line-strong);
+  border-radius: 0;
   background: var(--surface);
 }
 
-.pol-card.is-yes { border-color: #b8c9d4; }
+.pol-card.is-yes { border-left-color: var(--blue); }
+.pol-card.is-maybe { border-left-color: #c9a227; }
+.pol-card.is-no { border-left-color: var(--line-strong); }
 
 .pol-card-head {
   display: flex;
@@ -2866,16 +2864,16 @@ body.nav-open {
 
 .pol-verdict {
   flex: none;
-  padding: 4px 10px;
+  padding: 2px 0;
   border-radius: 100px;
   font-size: 12px;
   line-height: 16px;
   font-weight: 600;
 }
 
-.is-yes .pol-verdict { background: var(--blue-soft); color: var(--blue-dark); }
-.is-maybe .pol-verdict { background: #f6efdc; color: #7a5a13; }
-.is-no .pol-verdict { background: var(--surface-2); color: var(--muted); }
+.is-yes .pol-verdict { background: none; color: var(--blue); }
+.is-maybe .pol-verdict { background: none; color: #9a7517; }
+.is-no .pol-verdict { background: none; color: var(--muted); }
 
 .pol-why {
   margin: 12px 0 0;
@@ -2888,9 +2886,8 @@ body.nav-open {
   display: grid;
   gap: 8px;
   margin: 16px 0 0;
-  padding: 12px 16px;
-  border-radius: 12px;
-  background: var(--bg);
+  padding: 12px 0 0;
+  border-top: 1px solid var(--line);
 }
 
 .pol-money-row {
