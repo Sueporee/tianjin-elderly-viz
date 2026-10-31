@@ -3,26 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0e3f63">
-  <meta name="description" content="天津 16 区养老资源体检：看老年人口、助餐点、日间照料中心与卫生床位，支持补点优先级实验。">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#175d8d">
   <title>海河养老资源 · 天津 16 区</title>
+  <meta name="description" content="天津 16 区养老资源体检：看老年人口、助餐点、日间照料中心与卫生床位，按权重推演补点优先级，并在地图上查找附近点位。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sueporee.github.io/tianjin-elderly-viz/">
+  <meta property="og:site_name" content="海河养老资源">
+  <meta property="og:title" content="海河养老资源 · 天津 16 区">
+  <meta property="og:description" content="从家门口的一顿饭、一次日间照料开始，看 16 个区的老龄化、设施密度与补点缺口。">
+  <meta property="og:image" content="https://sueporee.github.io/tianjin-elderly-viz/assets/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=17">
-  <link rel="stylesheet" href="css/lab.css?v=11">
+  <link rel="stylesheet" href="css/style.css?v=21">
+  <script>document.documentElement.className += " js";</script>
 </head>
 <body>
-  <div class="masthead">
-    <div class="container masthead-inner">
-      <span>海河养老资源</span>
-      <span>天津 · 2026.10</span>
-      <span>公开数据整理 / 课程项目</span>
-    </div>
-  </div>
+  <a class="skip-link" href="#main">跳到正文</a>
 
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="#/home">
+  <header class="site-header" id="siteHeader">
+    <div class="nav-shell">
+      <a class="brand" href="#/home" aria-label="海河养老资源，回到首页">
         <span class="brand-mark" aria-hidden="true">
           <svg viewBox="0 0 44 44" role="presentation">
             <path class="river river-a" d="M5 25 C 12 10, 19 34, 26 20 S 35 12, 39 18"/>
@@ -35,7 +36,7 @@
           <span class="brand-sub">TIANJIN · 16 DISTRICTS</span>
         </span>
       </a>
-      <nav class="nav" id="nav">
+      <nav class="nav" id="nav" aria-label="主导航">
         <a href="#/home" class="nav-link active" data-page="home">首页</a>
         <a href="#/checkup" class="nav-link" data-page="checkup">资源体检</a>
         <a href="#/map" class="nav-link" data-page="map">附近服务</a>
@@ -43,46 +44,45 @@
         <a href="#/lab" class="nav-link" data-page="lab">补点推演</a>
         <a href="#/conclusion" class="nav-link" data-page="conclusion">结论</a>
       </nav>
-      <button class="nav-toggle" id="navToggle" aria-label="展开菜单" aria-expanded="false">
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="展开菜单" aria-expanded="false" aria-controls="nav">
         <span></span><span></span><span></span>
       </button>
     </div>
   </header>
 
-  <main>
+  <main id="main">
     <section class="hero page active" id="home" data-page="home">
       <div class="hero-river" aria-hidden="true">
         <svg viewBox="0 0 1440 620" preserveAspectRatio="none">
-          <path d="M-60 430 C 170 290, 330 500, 570 360 S 900 170, 1130 300 S 1320 450, 1500 330" fill="none" stroke="#175d8d" stroke-opacity=".12" stroke-width="2"/>
-          <path d="M-60 475 C 190 340, 360 540, 610 400 S 950 230, 1180 350 S 1350 490, 1500 380" fill="none" stroke="#b54633" stroke-opacity=".08" stroke-width="2"/>
-          <circle cx="1170" cy="170" r="120" fill="none" stroke="#175d8d" stroke-opacity=".07" stroke-width="1.5"/>
+          <path d="M-60 430 C 170 290, 330 500, 570 360 S 900 170, 1130 300 S 1320 450, 1500 330" fill="none" stroke="#175d8d" stroke-opacity=".14" stroke-width="2"/>
+          <path d="M-60 475 C 190 340, 360 540, 610 400 S 950 230, 1180 350 S 1350 490, 1500 380" fill="none" stroke="#b54633" stroke-opacity=".1" stroke-width="2"/>
+          <circle cx="1170" cy="170" r="120" fill="none" stroke="#175d8d" stroke-opacity=".08" stroke-width="1.5"/>
         </svg>
       </div>
 
       <div class="container hero-grid">
         <div class="hero-copy">
-          <div class="eyebrow">
-            <span class="eyebrow-loc"><i></i>天津</span>
-            <span class="eyebrow-scope">中心城区试点</span>
+          <p class="eyebrow">
+            <span class="eyebrow-loc"><i aria-hidden="true"></i>天津</span>
+            <span class="eyebrow-scope">中心城区试点 · 2026.10</span>
             <span class="eyebrow-mode is-a">A 资源体检</span>
             <span class="eyebrow-mode">B 附近服务</span>
-          </div>
-          <h1>海河两岸<br><span>老有所养有多近</span></h1>
+          </p>
+          <h1><span>海河两岸</span><span>老有所养有多近</span></h1>
           <p class="lead">
-            从家门口的一顿饭、一次日间照料开始，<br>
-            再看 16 个区的老龄化、设施密度与补点缺口。<br>
+            从家门口的一顿饭、一次日间照料开始，看 16 个区的老龄化、设施密度与补点缺口。
             一张地图，回答“附近有没有”和“为什么这里缺”。
           </p>
-          <p class="purpose-note"><strong>项目边界：</strong>这不是服务目录。A 帮管理者判断“先补谁”，B 帮居民查看区级/点位线索。</p>
+          <p class="purpose-note"><strong>项目边界：</strong>这不是服务目录。A 帮管理者判断“先补谁”，B 帮居民查看区级与点位线索。</p>
           <div class="hero-actions">
-            <a class="btn btn-ghost" href="#/checkup">A · 看资源体检 <span aria-hidden="true">→</span></a>
             <a class="btn btn-primary" href="#/map">B · 找附近服务 <span aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost" href="#/checkup">A · 看资源体检 <span aria-hidden="true">→</span></a>
           </div>
           <p class="hero-note" id="heroPointNote">B 为中心城区区级/街道级近似试点；具体点位、营业状态以民政局官方名单为准，不构成服务承诺。</p>
         </div>
 
-        <aside class="brief">
-          <p class="brief-label">海河速览</p>
+        <aside class="brief" aria-labelledby="briefLabel">
+          <p class="brief-label" id="briefLabel">海河速览</p>
           <div class="brief-item">
             <span class="brief-num">01</span>
             <div>
@@ -141,11 +141,56 @@
         </a>
       </div>
 
+      <div class="container">
+        <section class="focus" aria-labelledby="focusTitle" data-reveal>
+          <div class="section-head">
+            <div class="section-title">
+              <p class="section-index">典型区速写</p>
+              <h2 id="focusTitle">三个区，三种缺法</h2>
+            </div>
+            <div class="section-meta">
+              <p class="section-desc">同一句“不够”，落在不同区是不同的问题：有的是老人太多，有的是点太少，有的是看着齐、其实补错了位。</p>
+            </div>
+          </div>
+          <div class="focus-grid">
+            <a class="focus-card" href="#/directory">
+              <p class="focus-label">老龄化最深</p>
+              <p class="focus-value"><strong data-focus-value="31.0">31.0</strong><span>%</span></p>
+              <h3 data-focus-name>河北区</h3>
+              <p class="focus-text" data-focus-text="aging">60 岁以上 20.07 万，老龄化率全市最高。</p>
+              <span class="focus-arrow">看该区名单 →</span>
+            </a>
+            <a class="focus-card" href="#/directory">
+              <p class="focus-label">助餐最稀</p>
+              <p class="focus-value"><strong data-focus-value="1.7">1.7</strong><span>个/万</span></p>
+              <h3 data-focus-name>河西区</h3>
+              <p class="focus-text" data-focus-text="meal">每万名老人 1.7 家助餐点，吃饭这件小事最需要补。</p>
+              <span class="focus-arrow">看该区名单 →</span>
+            </a>
+            <a class="focus-card" href="#/directory">
+              <p class="focus-label">配置最密</p>
+              <p class="focus-value"><strong data-focus-value="67.1">67.1</strong><span>指数</span></p>
+              <h3 data-focus-name>和平区</h3>
+              <p class="focus-text" data-focus-text="index">三类设施综合便利指数最高，但也不等于没有缺口。</p>
+              <span class="focus-arrow">看该区名单 →</span>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <div class="container">
+        <section class="tagline" aria-label="项目主张">
+          <p class="tagline-text" id="taglineText">
+            <span class="tagline-line">资源够不够，不看总量，</span>
+            <span class="tagline-line">看谁家门口有没有一顿热饭。</span>
+          </p>
+        </section>
+      </div>
     </section>
 
     <section class="section page" id="visual" data-page="checkup">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <div class="section-title">
             <p class="section-index">01 / A · 资源体检</p>
             <h2>先看总量，再看错配</h2>
@@ -156,7 +201,7 @@
           </div>
         </div>
 
-        <div class="tabs" role="tablist" aria-label="图表切换">
+        <div class="tabs" role="tablist" aria-label="图表切换" data-reveal>
           <button class="tab active" data-view="population" role="tab" aria-selected="true">人口</button>
           <button class="tab" data-view="facilities" role="tab" aria-selected="false">设施</button>
           <button class="tab" data-view="share" role="tab" aria-selected="false">占比</button>
@@ -164,7 +209,7 @@
           <button class="tab" data-view="gap" role="tab" aria-selected="false">缺口</button>
         </div>
 
-        <div class="chart-card">
+        <div class="chart-card" data-reveal>
           <div class="chart-head">
             <div>
               <h3 id="chartTitle">各区老年人口与老龄化率</h3>
@@ -181,14 +226,18 @@
 
     <section class="section map-section page" id="map" data-page="map">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <div class="section-title">
             <p class="section-index">02 / B · 附近服务</p>
             <h2>一张地图，先看附近</h2>
           </div>
+          <div class="section-meta">
+            <p class="section-desc">颜色表示区级设施密度，点表示全市点位。开放定位后会按距离排序，距离仅作参考。</p>
+            <p class="page-scope">口径：中心城区区级 / 街道级近似点位</p>
+          </div>
         </div>
 
-        <div class="map-shell">
+        <div class="map-shell" data-reveal>
           <div class="map-toolbar">
             <div class="map-search-wrap">
               <input id="mapSearch" type="search" autocomplete="off" placeholder="搜索区 / 街道 / 点位，定位到地图" aria-label="搜索地点">
@@ -232,7 +281,7 @@
 
     <section class="section section-query page" id="facilities" data-page="directory">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <div class="section-title">
             <p class="section-index">03 / B · 区级账本</p>
             <h2>先看区，再看名单</h2>
@@ -243,7 +292,7 @@
           </div>
         </div>
 
-        <div class="filter-card">
+        <div class="filter-card" data-reveal>
           <div class="filter-row">
             <div class="chips" id="sortFilters"></div>
             <div class="filter-controls">
@@ -262,10 +311,10 @@
 
     <section class="section lab page" id="lab" data-page="lab">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <div class="section-title">
             <p class="section-index">04 / A · 补点推演</p>
-            <h2>如果只能先补一类，你会怎么选？</h2>
+            <h2><span class="balance-line">如果只能先补一类，</span><span class="balance-line">你会怎么选？</span></h2>
           </div>
           <div class="section-meta">
             <p class="section-desc">拖动滑块调整“助餐点、日间照料、卫生床位”的权重，16 区排名实时变化。没有标准答案，只有优先级。</p>
@@ -273,7 +322,7 @@
           </div>
         </div>
 
-        <div class="lab-grid">
+        <div class="lab-grid" data-reveal>
           <div class="lab-controls">
             <p class="lab-label">快速预设</p>
             <div class="chips lab-presets" id="labPresets">
@@ -284,15 +333,15 @@
             </div>
 
             <div class="slider-row">
-              <label for="mealRange">助餐点 <span id="mealWeight">40</span>%</label>
+              <label for="mealRange"><span class="slider-name">助餐点</span><span class="slider-val"><b id="mealWeight">40</b>%</span></label>
               <input id="mealRange" type="range" min="0" max="100" step="5" value="40">
             </div>
             <div class="slider-row">
-              <label for="daycareRange">日间照料 <span id="daycareWeight">35</span>%</label>
+              <label for="daycareRange"><span class="slider-name">日间照料</span><span class="slider-val"><b id="daycareWeight">35</b>%</span></label>
               <input id="daycareRange" type="range" min="0" max="100" step="5" value="35">
             </div>
             <div class="slider-row">
-              <label for="healthRange">卫生床位 <span id="healthWeight">25</span>%</label>
+              <label for="healthRange"><span class="slider-name">卫生床位</span><span class="slider-val"><b id="healthWeight">25</b>%</span></label>
               <input id="healthRange" type="range" min="0" max="100" step="5" value="25">
             </div>
             <p class="lab-hint">三项权重会自动归一化；拖动后图表和结论立即更新。</p>
@@ -308,14 +357,18 @@
 
     <section class="section page" id="insights" data-page="conclusion">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <div class="section-title">
             <p class="section-index">05 / 结论</p>
             <h2>从数据里读出的四件事</h2>
           </div>
+          <div class="section-meta">
+            <p class="section-desc">四条结论对应三张图和一次权重推演，右侧数字随页面数据实时计算。</p>
+            <p class="page-scope">口径：区级汇总 · 全部为公开名单</p>
+          </div>
         </div>
 
-        <div class="insight-grid">
+        <div class="insight-grid" data-reveal>
           <article class="insight-card">
             <span class="insight-label">老龄化程度</span>
             <strong class="insight-value" id="insightAging">--</strong>
@@ -342,7 +395,7 @@
           </article>
         </div>
 
-        <div class="recommend-card">
+        <div class="recommend-card" data-reveal>
           <div class="recommend-head">
             <p class="section-index">建议</p>
             <h3>先补最缺的，再谈均等化</h3>
@@ -355,7 +408,7 @@
           </ol>
         </div>
 
-        <div class="data-note">
+        <div class="data-note" data-reveal>
           <h3>数据说明</h3>
           <p id="dataNoteText">老年人口为 2020 年第七次全国人口普查（常住）；设施为 2024—2025 年公开名单。</p>
           <p id="mealNoteText"></p>
@@ -367,13 +420,20 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <p>海河养老资源 · 天津 16 区</p>
-      <p>数据来源：天津市统计局、天津市民政局</p>
+      <div>
+        <p class="footer-brand">海河养老资源</p>
+        <p class="footer-meta">数据来源：天津市统计局、天津市民政局 · 2026.10 · 公开数据整理 / 课程项目</p>
+      </div>
+      <nav class="footer-links" aria-label="页脚">
+        <a href="#/conclusion">数据说明</a>
+        <button type="button" data-help-open>使用说明</button>
+        <a class="link-to-top" href="#/home" data-to-top>回到顶部 ↑</a>
+      </nav>
     </div>
   </footer>
 
   <button class="help-fab" id="helpOpen" type="button" aria-haspopup="dialog" aria-controls="helpModal">
-    <span class="help-fab-mark">?</span>
+    <span class="help-fab-mark" aria-hidden="true">?</span>
     <span>使用说明</span>
   </button>
 
@@ -398,7 +458,7 @@
         <article>
           <span>03</span>
           <h3>看附近点位</h3>
-          <p>按助餐/日照筛选，查看门址、电话和资料等级；点右侧列表可同步地图。</p>
+          <p>按助餐、日照筛选，查看门址、电话和资料等级；点右侧列表可同步地图。</p>
         </article>
       </div>
       <p class="home-scope-note" id="helpPointNote">
@@ -406,8 +466,8 @@
         B 已收录 16 区民政局名单；绝大多数点位已到门址级，少量仍为区级近似。全市区级总数见“区级账本”。
       </p>
       <div class="help-actions">
-        <a class="btn btn-ghost" href="#/checkup" data-help-close>去 A 看资源体检</a>
         <a class="btn btn-primary" href="#/map" data-help-close>去 B 找附近服务</a>
+        <a class="btn btn-ghost" href="#/checkup" data-help-close>去 A 看资源体检</a>
       </div>
     </div>
   </div>
@@ -416,6 +476,7 @@
   <script src="data/tianjin_geo.js?v=11"></script>
   <script src="vendor/echarts.min.js"></script>
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="js/app.js?v=25"></script>
+  <script src="js/app.js?v=28"></script>
+  <script src="js/ui.js?v=3"></script>
 </body>
 </html>
