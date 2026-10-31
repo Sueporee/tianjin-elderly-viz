@@ -26,18 +26,18 @@
   const byDay = [...DISTRICTS].sort((a, b) => a.daycarePer10k - b.daycarePer10k);
 
   const isNarrow = window.innerWidth < 640;
-  const chartText = { fontFamily: '"Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif' };
+  const chartText = { fontFamily: '"PingFang SC", "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei", system-ui, sans-serif' };
   const tooltipBase = {
     backgroundColor: "rgba(255,255,255,0.98)",
     borderColor: "#d6cdbb",
     borderWidth: 1,
     padding: [10, 12],
-    textStyle: { color: "#102338", fontSize: 12, fontFamily: '"Microsoft YaHei", sans-serif' },
-    extraCssText: "box-shadow:0 10px 28px rgba(22,32,42,.12);border-radius:10px;",
+    textStyle: { color: "#14181c", fontSize: 14, fontFamily: '"PingFang SC", "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei", system-ui, sans-serif' },
+    extraCssText: "box-shadow:0 12px 32px rgba(20,24,28,.12);border-radius:8px;",
   };
   const row = (label, value, color) =>
     `<div style="display:flex;justify-content:space-between;gap:22px;margin-top:4px;color:#33475b">
-      <span>${label}</span><b style="color:${color || "#102338"}">${value}</b>
+      <span>${label}</span><b style="color:${color || "#14181c"}">${value}</b>
     </div>`;
 
   /* ---------------- 首页 ---------------- */
@@ -93,15 +93,16 @@
       },
     },
     legend: {
-      top: 0,
+      top: isNarrow ? null : 0,
+      bottom: isNarrow ? 0 : null,
       left: "center",
       itemGap: 18,
       icon: "rect",
       itemWidth: 10,
       itemHeight: 6,
-      textStyle: { color: "#5f7182", fontSize: 11 },
+      textStyle: { color: "#5f7182", fontSize: 12 },
     },
-    grid: { left: 55, right: 58, top: 44, bottom: isNarrow ? 100 : 82 },
+    grid: { left: isNarrow ? 44 : 55, right: isNarrow ? 46 : 58, top: isNarrow ? 56 : 44, bottom: isNarrow ? 120 : 82 },
     xAxis: {
       type: "category",
       data: byAgingDesc.map((d) => d.name),
@@ -109,7 +110,7 @@
       axisLine: { lineStyle: { color: "#b8c8d4" } },
       axisLabel: {
         color: "#5f7182",
-        fontSize: isNarrow ? 9 : 10,
+        fontSize: 12,
         rotate: isNarrow ? 45 : 32,
         interval: isNarrow ? 1 : 0,
       },
@@ -118,8 +119,13 @@
       {
         type: "value",
         name: "60+人口（万人）",
-        nameTextStyle: { color: "#8fa3b3", fontSize: 10, padding: [0, 0, 6, 0] },
-        axisLabel: { color: "#8fa3b3", fontSize: 10 },
+        nameTextStyle: {
+          color: "#6b747c",
+          fontSize: 12,
+          align: isNarrow ? "left" : "center",
+          padding: [0, 0, 6, 0],
+        },
+        axisLabel: { color: "#6b747c", fontSize: 12 },
         splitLine: { lineStyle: { color: "#d8e2e9" } },
       },
       {
@@ -127,8 +133,13 @@
         name: "老龄化率（%）",
         min: 12,
         max: 35,
-        nameTextStyle: { color: "#8fa3b3", fontSize: 10, padding: [0, 0, 6, 0] },
-        axisLabel: { color: "#8fa3b3", fontSize: 10, formatter: "{value}%" },
+        nameTextStyle: {
+          color: "#6b747c",
+          fontSize: 12,
+          align: isNarrow ? "right" : "center",
+          padding: [0, 0, 6, 0],
+        },
+        axisLabel: { color: "#6b747c", fontSize: 12, formatter: "{value}%" },
         splitLine: { show: false },
       },
     ],
@@ -195,7 +206,7 @@
       splitArea: { show: true },
       axisTick: { show: false },
       axisLine: { lineStyle: { color: "#b8c8d4" } },
-      axisLabel: { color: "#5f7182", fontSize: 11 },
+      axisLabel: { color: "#5f7182", fontSize: 12 },
     },
     yAxis: {
       type: "category",
@@ -203,7 +214,7 @@
       splitArea: { show: true },
       axisTick: { show: false },
       axisLine: { lineStyle: { color: "#b8c8d4" } },
-      axisLabel: { color: "#5f7182", fontSize: 9.5 },
+      axisLabel: { color: "#5f7182", fontSize: 12.5 },
     },
     visualMap: {
       min: 0,
@@ -215,7 +226,7 @@
       itemWidth: 10,
       itemHeight: 100,
       text: ["高", "低"],
-      textStyle: { color: "#8fa3b3", fontSize: 9 },
+      textStyle: { color: "#6b747c", fontSize: 12 },
       calculable: false,
       inRange: { color: ["#f4f8fb", "#cfe3f1", "#175d8d"] },
     },
@@ -226,10 +237,10 @@
       label: {
         show: true,
         formatter: (p) => `{${p.data[3] > 0.62 ? "light" : "dark"}|${p.data[2].toFixed(1)}}`,
-        fontSize: 8.5,
+        fontSize: 12.5,
         rich: {
           light: { color: "#ffffff" },
-          dark: { color: "#102338" },
+          dark: { color: "#14181c" },
         },
       },
       itemStyle: { borderColor: "#ffffff", borderWidth: 2 },
@@ -252,8 +263,8 @@
         left: "center",
         top: "36%",
         textAlign: "center",
-        textStyle: { color: "#102338", fontSize: 24, fontWeight: 700, fontFamily: '"Segoe UI", "Microsoft YaHei", sans-serif' },
-        subtextStyle: { color: "#8fa3b3", fontSize: 11 },
+        textStyle: { color: "#14181c", fontSize: 20, fontWeight: 600, fontFamily: '"PingFang SC", "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei", system-ui, sans-serif' },
+        subtextStyle: { color: "#6b747c", fontSize: 12 },
       },
       tooltip: { ...tooltipBase, trigger: "item", formatter: "{b}<br/><b>{c}</b> 个（{d}%）" },
       legend: {
@@ -262,7 +273,7 @@
         icon: "circle",
         itemWidth: 8,
         itemHeight: 8,
-        textStyle: { color: "#5f7182", fontSize: 11 },
+        textStyle: { color: "#5f7182", fontSize: 12 },
       },
       series: [{
         name: "点位构成",
@@ -270,7 +281,7 @@
         radius: ["42%", "68%"],
         center: ["50%", "44%"],
         itemStyle: { borderColor: "#ffffff", borderWidth: 2 },
-        label: { color: "#33475b", fontSize: 11, formatter: "{b}\n{d}%" },
+        label: { color: "#33475b", fontSize: 12, formatter: "{b}\n{d}%" },
         labelLine: { length: 10, length2: 8 },
         data: pieData,
       }],
@@ -320,18 +331,18 @@
         type: "value",
         min: 14,
         max: 33,
-        axisLabel: { color: "#8fa3b3", fontSize: 10, formatter: "{value}%" },
+        axisLabel: { color: "#6b747c", fontSize: 12, formatter: "{value}%" },
         splitLine: { lineStyle: { color: "#d8e2e9" } },
       },
       yAxis: {
         type: "value",
-        axisLabel: { color: "#8fa3b3", fontSize: 10 },
+        axisLabel: { color: "#6b747c", fontSize: 12 },
         splitLine: { lineStyle: { color: "#d8e2e9" } },
       },
       series: [{
         type: "scatter",
         data,
-        label: { show: true, position: "top", formatter: "{b}", color: "#33475b", fontSize: 9.5 },
+        label: { show: true, position: "top", formatter: "{b}", color: "#33475b", fontSize: 12.5 },
         labelLayout: (params) => {
           const off = offsets[params.text] || [0, -9];
           return { dx: off[0], dy: off[1] };
@@ -339,7 +350,7 @@
         markLine: {
           silent: true,
           symbol: "none",
-          lineStyle: { type: "dashed", color: "#8fa3b3" },
+          lineStyle: { type: "dashed", color: "#6b747c" },
           label: { show: false },
           data: [{ xAxis: avgAging }, { yAxis: avgDay }],
         },
@@ -372,7 +383,7 @@
         type: "value",
         min: -bound,
         max: bound,
-        axisLabel: { color: "#8fa3b3", fontSize: 9 },
+        axisLabel: { color: "#6b747c", fontSize: 12 },
         splitLine: { lineStyle: { color: "#d8e2e9" } },
       },
       yAxis: {
@@ -380,7 +391,7 @@
         data: display.map((d) => d.name),
         axisTick: { show: false },
         axisLine: { lineStyle: { color: "#b8c8d4" } },
-        axisLabel: { color: "#5f7182", fontSize: 9 },
+        axisLabel: { color: "#5f7182", fontSize: 12 },
       },
       series: [{
         type: "bar",
@@ -393,13 +404,13 @@
           show: true,
           position: "right",
           formatter: (p) => `${p.value > 0 ? "+" : ""}${p.value.toFixed(1)}`,
-          fontSize: 9,
+          fontSize: 12,
           color: "#5f7182",
         },
         markLine: {
           silent: true,
           symbol: "none",
-          lineStyle: { color: "#8fa3b3", type: "solid" },
+          lineStyle: { color: "#6b747c", type: "solid" },
           label: { show: false },
           data: [{ xAxis: 0 }],
         },
@@ -627,7 +638,7 @@
       xAxis: {
         type: "value",
         max: 100,
-        axisLabel: { color: "#8fa3b3", fontSize: 9 },
+        axisLabel: { color: "#6b747c", fontSize: 12 },
         splitLine: { lineStyle: { color: "#d8e2e9" } },
       },
       yAxis: {
@@ -635,7 +646,7 @@
         data: sorted.map((d) => d.name),
         axisTick: { show: false },
         axisLine: { lineStyle: { color: "#b8c8d4" } },
-        axisLabel: { color: "#5f7182", fontSize: 9 },
+        axisLabel: { color: "#5f7182", fontSize: 12 },
       },
       series: [{
         type: "bar",
@@ -644,7 +655,7 @@
           itemStyle: { color: indexColor(d.custom) },
         })),
         barMaxWidth: 12,
-        label: { show: true, position: "right", formatter: "{c}", fontSize: 9, color: "#5f7182" },
+        label: { show: true, position: "right", formatter: "{c}", fontSize: 12, color: "#5f7182" },
       }],
     }, true);
     labChart.resize();
