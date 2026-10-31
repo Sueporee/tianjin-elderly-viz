@@ -1266,7 +1266,7 @@
   }
 
   /* ---------------- 分页路由 ---------------- */
-  const PAGES = new Set(["home", "map", "checkup", "directory", "lab", "conclusion"]);
+  const PAGES = new Set(["home", "map", "checkup", "directory", "policy", "lab", "conclusion"]);
   const PAGE_ALIASES = { visual: "checkup", facilities: "directory", insights: "conclusion" };
   function pageFromHash() {
     const h = window.location.hash.replace(/^#\/?/, "");
