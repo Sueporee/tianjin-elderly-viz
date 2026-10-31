@@ -550,6 +550,7 @@
         <div class="district-links">
           <a class="map-link" href="${META.links.meal}" target="_blank" rel="noopener">助餐名单 ↗</a>
           <a class="map-link" href="${META.links.daycare}" target="_blank" rel="noopener">日照名单 ↗</a>
+          <button class="map-link map-link-print" type="button" data-brief="${d.name}">一页纸 · 打印/存 PDF</button>
         </div>
       </article>`).join("");
   }
@@ -755,6 +756,13 @@
 
   function esc(s) {
     return String(s || "").replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+  }
+
+  function sourceLabel(source) {
+    const s = String(source || "");
+    if (s.includes("助餐") || s.includes("老人家食堂")) return "市民政局 2025 助餐名单";
+    if (s.includes("日间照料")) return "市民政局 2025 日照名单";
+    return "民政局公开名单";
   }
 
   function haversine(a, b) {
@@ -996,8 +1004,9 @@
     if (!list.length) { mapListEl.innerHTML = `<div class="map-empty">这个分类下没有点位。</div>`; return; }
     mapListEl.innerHTML = list.slice(0, 50).map((p) => {
       const dist = pointDistance(p);
-      const geo = `${p.geoLevel === "address" ? "门址级" : p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料${p.quality}` : ""}`;
-      return `<article class="map-point"><div class="map-point-top"><span class="map-point-type ${p.type === "助餐点" ? "is-meal" : "is-day"}">${p.type}</span><span class="map-point-geo">${geo}</span>${dist !== null ? `<span class="map-point-dist">${dist.toFixed(1)} km</span>` : ""}</div><h4>${esc(p.name)}</h4><p>${esc(p.district)} · ${esc(p.address)}</p>${p.phone ? `<a class="map-point-phone" href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}</article>`;
+      const src = sourceLabel(p.source);
+      const geo = `${p.geoLevel === "address" ? "门址级坐标" : p.geoLevel === "street" ? "街道级近似" : "区级近似"} · 资料 ${p.quality || "—"}`;
+      return `<article class="map-point"><div class="map-point-top"><span class="map-point-type ${p.type === "助餐点" ? "is-meal" : "is-day"}">${p.type}</span><span class="map-point-geo">${geo}</span>${dist !== null ? `<span class="map-point-dist">${dist.toFixed(1)} km</span>` : ""}</div><h4>${esc(p.name)}</h4><p>${esc(p.district)} · ${esc(p.address)}</p><p class="map-point-src">来源：${src} · 未人工核实</p>${p.phone ? `<a class="map-point-phone" href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}</article>`;
     }).join("") + (list.length > 50 ? `<p class="map-list-more">还有 ${list.length - 50} 个点位，缩小到具体区可查看更多。</p>` : "");
     mapListEl.querySelectorAll(".map-point").forEach((el, i) => {
       el.addEventListener("click", () => {
@@ -1036,7 +1045,7 @@
     L.circleMarker(latlng, {
       radius: 11, color: "#b54633", weight: 2, fillColor: "#ffffff", fillOpacity: 0.18, dashArray: "3,3",
     }).addTo(highlightLayer);
-    const content = `<div class="selected-popup"><strong>${esc(p.name)}</strong><br>${esc(p.district)} · ${esc(p.address)}${p.phone ? `<br><a href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}<br><small>${p.geoLevel === "address" ? "门址级" : p.geoLevel === "street" ? "街道级近似" : "区级近似"}${p.quality ? ` · 资料 ${p.quality}` : ""}</small></div>`;
+    const content = `<div class="selected-popup"><strong>${esc(p.name)}</strong><br>${esc(p.district)} · ${esc(p.address)}${p.phone ? `<br><a href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}<br><small>${p.geoLevel === "address" ? "门址级坐标" : p.geoLevel === "street" ? "街道级近似" : "区级近似"} · 资料 ${p.quality || "—"}<br>来源：${sourceLabel(p.source)} · 未人工核实</small></div>`;
     L.popup({ autoClose: false, closeOnClick: false, className: "selected-popup-wrap", maxWidth: 270 })
       .setLatLng(latlng).setContent(content).openOn(map);
     map.setView(latlng, Math.max(map.getZoom(), 13));
