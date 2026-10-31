@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#175d8d">
+  <title>没有这个页面 · 海河养老资源</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css?v=18">
+  <style>
+    .error-wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-block: 64px;
+    }
+    .error-code {
+      color: var(--red);
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+    }
+    .error-wrap h1 {
+      margin: 16px 0 0;
+      max-width: 20ch;
+      font-family: var(--serif);
+      font-size: 48px;
+      line-height: 1.2;
+      font-weight: 600;
+      text-wrap: balance;
+    }
+    .error-wrap p {
+      margin: 16px 0 0;
+      max-width: 52ch;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 24px;
+    }
+    .error-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+    .error-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+    }
+    .error-links a {
+      color: var(--blue);
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 600;
+    }
+    @media (max-width: 760px) {
+      .error-wrap h1 {
+        font-size: 30px;
+        line-height: 38px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container error-wrap">
+    <p class="error-code">404 / 页面不存在</p>
+    <h1>这条街口没有这一页</h1>
+    <p>链接可能已经换成新的路由。回到首页，或者直接看资源体检和附近服务。</p>
+    <div class="error-actions">
+      <a class="btn btn-primary" href="index.html#/home">回到首页 <span aria-hidden="true">→</span></a>
+      <a class="btn btn-ghost" href="index.html#/map">找附近服务</a>
+    </div>
+    <nav class="error-links" aria-label="其他入口">
+      <a href="index.html#/checkup">资源体检</a>
+      <a href="index.html#/directory">区级账本</a>
+      <a href="index.html#/lab">补点推演</a>
+      <a href="index.html#/conclusion">结论</a>
+    </nav>
+  </main>
+</body>
+</html>
